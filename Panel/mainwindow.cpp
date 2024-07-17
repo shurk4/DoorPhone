@@ -62,7 +62,7 @@ void MainWindow::reciveAudio(QByteArray sample)
 
 void MainWindow::slotData(QByteArray _data)
 {
-    ui->textBrowser->append(QString(_data));
+    outputDevice->write(_data);
 }
 
 void MainWindow::initializeAudio()

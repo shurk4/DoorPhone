@@ -1,5 +1,5 @@
-D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/EWIEGA46WW/moc_server.cpp: D:/Programming/C++/Work/DoorPhone/Panel/server.h \
-  D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/moc_predefs.h \
+C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/EWIEGA46WW/moc_server.cpp: C:/Programming/DoorPhone/Panel/server.h \
+  C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/moc_predefs.h \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
