@@ -8,6 +8,8 @@
 #include <QAudioInput>
 #include <QAudioOutput>
 
+#include "udpnet.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -19,6 +21,9 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     QTcpSocket* socket = nullptr;
+    UDPNet network;
+    int port = 2024;
+
     QByteArray data;
     bool connected = false;
 
@@ -53,6 +58,8 @@ private slots:
 public slots:
     void socketReady();
     void socketDisconected();
+
+    void slotData(QByteArray _data);
 
 private slots:
     void on_pushButtonConnect_clicked();

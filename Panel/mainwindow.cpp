@@ -22,6 +22,12 @@ MainWindow::MainWindow(QWidget *parent)
     server.startServer(2024);
     connect(&server, &Server::signalSendText, this, &MainWindow::reciveMessage);
     connect(&server, &Server::signalSendBytes, this, &MainWindow::reciveAudio);
+
+
+    network.setPort(port);
+    network.initUdp();
+
+    connect(&network, &UDPNet::signalData, this, &MainWindow::slotData);
 }
 
 MainWindow::~MainWindow()
@@ -35,44 +41,13 @@ void MainWindow::readInput()
     if(!audioInput)
         return;
 
-    //Check the number of samples in input buffer
-    qint64 len = audioInput->bytesReady();
+    network.sendData(inputDevice->readAll());
+}
 
-    //Limit sample size
-    if(len > 4096)
-        len = 4096;
-    //Read sound samples from input device to buffer
-    qint64 l = inputDevice->read(buffer.data(), len);
-    if(l > 0)
-    {
-        //Assign sound samples to short array
-        short* resultingData = (short*)buffer.data();
-
-
-        short *outdata=resultingData;
-        outdata[ 0 ] = resultingData [ 0 ];
-
-        int iIndex;
-        // if(ui->chkRemoveNoise->checkState() == Qt::Checked)
-        // {
-        //     //Remove noise using Low Pass filter algortm[Simple algorithm used to remove noise]
-        //     for ( iIndex=1; iIndex < len; iIndex++ )
-        //     {
-        //         outdata[ iIndex ] = 0.333 * resultingData[iIndex ] + ( 1.0 - 0.333 ) * outdata[ iIndex-1 ];
-        //     }
-        // }
-
-        // for ( iIndex=0; iIndex < len; iIndex++ )
-        // {
-        //     //Cange volume to each integer data in a sample
-        //     outdata[ iIndex ] = applyVolumeToSample( outdata[ iIndex ]);
-        // }
-
-        //write modified sond sample to outputdevice for playback audio
-        //!!! Сюда добавить отправку в сеть!!!
-        // outputDevice->write((char*)outdata, len);
-        server.lanSendBytes(buffer);
-    }
+int MainWindow::applyVolumeToSample(short iSample)
+{
+    //Calculate volume, Volume limited to  max 35535 and min -35535
+    return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
 }
 
 void MainWindow::reciveMessage(QString message)
@@ -82,7 +57,12 @@ void MainWindow::reciveMessage(QString message)
 
 void MainWindow::reciveAudio(QByteArray sample)
 {
-    outputDevice->write(sample);
+    ui->textBrowser->append(QString(sample));
+}
+
+void MainWindow::slotData(QByteArray _data)
+{
+    ui->textBrowser->append(QString(_data));
 }
 
 void MainWindow::initializeAudio()
@@ -117,12 +97,6 @@ void MainWindow::createAudioOutput()
     audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
 }
 
-int MainWindow::applyVolumeToSample(short iSample)
-{
-    //Calculate volume, Volume limited to  max 35535 and min -35535
-    return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
-}
-
 void MainWindow::startAudio()
 {
     //Audio output device
@@ -143,3 +117,10 @@ void MainWindow::createAudioInput()
 
     audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
 }
+
+void MainWindow::on_pushButtonSend_clicked()
+{
+    server.lanSendText(ui->lineEditMessage->text());
+    ui->lineEditMessage->clear();
+}
+

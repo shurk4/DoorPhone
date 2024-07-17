@@ -3,6 +3,10 @@ D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Deb
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+  C:/Qt/5.15.2/mingw81_64/include/QtCore/QSharedDataPointer \
+  C:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
+  C:/Qt/5.15.2/mingw81_64/include/QtCore/QUrl \
+  C:/Qt/5.15.2/mingw81_64/include/QtCore/QVariant \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
@@ -108,14 +112,23 @@ D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Deb
   C:/Qt/5.15.2/mingw81_64/include/QtMultimedia/qmultimedia.h \
   C:/Qt/5.15.2/mingw81_64/include/QtMultimedia/qtmultimedia-config.h \
   C:/Qt/5.15.2/mingw81_64/include/QtMultimedia/qtmultimediaglobal.h \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/QNetworkDatagram \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/QNetworkInterface \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/QNetworkProxy \
   C:/Qt/5.15.2/mingw81_64/include/QtNetwork/QTcpServer \
   C:/Qt/5.15.2/mingw81_64/include/QtNetwork/QTcpSocket \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/QUdpSocket \
   C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qabstractsocket.h \
   C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qhostaddress.h \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qnetworkdatagram.h \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qnetworkinterface.h \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qnetworkproxy.h \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qnetworkrequest.h \
   C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qtcpserver.h \
   C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qtcpsocket.h \
   C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qtnetwork-config.h \
   C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qtnetworkglobal.h \
+  C:/Qt/5.15.2/mingw81_64/include/QtNetwork/qudpsocket.h \
   C:/Qt/5.15.2/mingw81_64/include/QtWidgets/QMainWindow \
   C:/Qt/5.15.2/mingw81_64/include/QtWidgets/QMessageBox \
   C:/Qt/5.15.2/mingw81_64/include/QtWidgets/qdialog.h \
@@ -299,4 +312,5 @@ D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Deb
   C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/vadefs.h \
   C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/wchar.h \
   C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/wctype.h \
-  D:/Programming/C++/Work/DoorPhone/Panel/server.h
+  D:/Programming/C++/Work/DoorPhone/Panel/server.h \
+  D:/Programming/C++/Work/DoorPhone/Panel/udpnet.h

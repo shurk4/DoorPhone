@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>582</width>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,6 +18,20 @@
     <item>
      <widget class="QTextBrowser" name="textBrowser"/>
     </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLineEdit" name="lineEditMessage"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonSend">
+        <property name="text">
+         <string>Send</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -25,7 +39,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>582</width>
      <height>22</height>
     </rect>
    </property>

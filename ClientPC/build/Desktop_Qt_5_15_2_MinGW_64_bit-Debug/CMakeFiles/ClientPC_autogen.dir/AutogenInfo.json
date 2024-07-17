@@ -89,6 +89,12 @@
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp",
 			null
+		],
+		[
+			"D:/Programming/C++/Work/DoorPhone/ClientPC/udpnet.h",
+			"MU",
+			"EWIEGA46WW/moc_udpnet.cpp",
+			null
 		]
 	],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
@@ -156,7 +162,8 @@
 			"D:/Programming/C++/Work/DoorPhone/ClientPC/mainwindow.cpp",
 			"MU",
 			null
-		]
+		],
+		[ "D:/Programming/C++/Work/DoorPhone/ClientPC/udpnet.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],
 	"UIC_SEARCH_PATHS" : [],

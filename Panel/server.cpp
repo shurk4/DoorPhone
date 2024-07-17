@@ -106,19 +106,7 @@ void Server::socketReady()
 {
     for(auto &socket : sockets)
     {
-        data = socket->readAll();
-        emit signalSendBytes(data);
-
-        // QString tempData = data;
-        // QStringList strlist = tempData.split(QRegExp(":"));
-        // tempData = "";
-
-        // for(const auto &i : strlist)
-        // {
-        //     tempData += i + " @ ";
-        // }
-
-        // log("Client " + QString::number(socket->socketDescriptor()) + ": " + tempData);
+        emit signalSendBytes(socket->readAll());
     }
 }
 

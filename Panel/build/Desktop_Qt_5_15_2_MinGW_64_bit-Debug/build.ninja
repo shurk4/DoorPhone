@@ -81,6 +81,14 @@ build CMakeFiles/Panel.dir/server.cpp.obj: CXX_COMPILER__Panel_unscanned_Debug D
   OBJECT_DIR = CMakeFiles\Panel.dir
   OBJECT_FILE_DIR = CMakeFiles\Panel.dir
 
+build CMakeFiles/Panel.dir/udpnet.cpp.obj: CXX_COMPILER__Panel_unscanned_Debug D$:/Programming/C++/Work/DoorPhone/Panel/udpnet.cpp || cmake_object_order_depends_target_Panel
+  DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_MULTIMEDIA_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB
+  DEP_FILE = CMakeFiles\Panel.dir\udpnet.cpp.obj.d
+  FLAGS = -DQT_QML_DEBUG -g -std=gnu++17 -fdiagnostics-color=always
+  INCLUDES = -ID:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/include -isystem C:/Qt/5.15.2/mingw81_64/include -isystem C:/Qt/5.15.2/mingw81_64/include/QtWidgets -isystem C:/Qt/5.15.2/mingw81_64/include/QtGui -isystem C:/Qt/5.15.2/mingw81_64/include/QtANGLE -isystem C:/Qt/5.15.2/mingw81_64/include/QtCore -isystem C:/Qt/5.15.2/mingw81_64/./mkspecs/win32-g++ -isystem C:/Qt/5.15.2/mingw81_64/include/QtMultimedia -isystem C:/Qt/5.15.2/mingw81_64/include/QtNetwork
+  OBJECT_DIR = CMakeFiles\Panel.dir
+  OBJECT_FILE_DIR = CMakeFiles\Panel.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Panel
@@ -89,7 +97,7 @@ build CMakeFiles/Panel.dir/server.cpp.obj: CXX_COMPILER__Panel_unscanned_Debug D
 #############################################
 # Link the executable Panel.exe
 
-build Panel.exe: CXX_EXECUTABLE_LINKER__Panel_Debug CMakeFiles/Panel.dir/Panel_autogen/mocs_compilation.cpp.obj CMakeFiles/Panel.dir/main.cpp.obj CMakeFiles/Panel.dir/mainwindow.cpp.obj CMakeFiles/Panel.dir/server.cpp.obj | C$:/Qt/5.15.2/mingw81_64/lib/libQt5Widgets.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Multimedia.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Gui.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Network.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Core.a C$:/Qt/5.15.2/mingw81_64/lib/libqtmain.a || Panel_autogen Panel_autogen_timestamp_deps
+build Panel.exe: CXX_EXECUTABLE_LINKER__Panel_Debug CMakeFiles/Panel.dir/Panel_autogen/mocs_compilation.cpp.obj CMakeFiles/Panel.dir/main.cpp.obj CMakeFiles/Panel.dir/mainwindow.cpp.obj CMakeFiles/Panel.dir/server.cpp.obj CMakeFiles/Panel.dir/udpnet.cpp.obj | C$:/Qt/5.15.2/mingw81_64/lib/libQt5Widgets.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Multimedia.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Gui.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Network.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Core.a C$:/Qt/5.15.2/mingw81_64/lib/libqtmain.a || Panel_autogen Panel_autogen_timestamp_deps
   FLAGS = -DQT_QML_DEBUG -g
   LINK_FLAGS = -mwindows
   LINK_LIBRARIES = C:/Qt/5.15.2/mingw81_64/lib/libQt5Widgets.a  C:/Qt/5.15.2/mingw81_64/lib/libQt5Multimedia.a  C:/Qt/5.15.2/mingw81_64/lib/libQt5Gui.a  C:/Qt/5.15.2/mingw81_64/lib/libQt5Network.a  C:/Qt/5.15.2/mingw81_64/lib/libQt5Core.a  C:/Qt/5.15.2/mingw81_64/lib/libqtmain.a  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
@@ -192,7 +200,7 @@ build Panel_autogen/timestamp Panel_autogen/mocs_compilation.cpp | ${cmake_ninja
 #############################################
 # Phony custom command for CMakeFiles\Panel_autogen_timestamp_deps
 
-build CMakeFiles/Panel_autogen_timestamp_deps | ${cmake_ninja_workdir}CMakeFiles/Panel_autogen_timestamp_deps: phony C$:/Qt/5.15.2/mingw81_64/lib/libQt5Multimedia.a C$:/Qt/5.15.2/mingw81_64/bin/moc.exe C$:/Qt/5.15.2/mingw81_64/lib/libQt5Widgets.a C$:/Qt/5.15.2/mingw81_64/bin/uic.exe
+build CMakeFiles/Panel_autogen_timestamp_deps | ${cmake_ninja_workdir}CMakeFiles/Panel_autogen_timestamp_deps: phony C$:/Qt/5.15.2/mingw81_64/lib/libQt5Multimedia.a C$:/Qt/5.15.2/mingw81_64/bin/moc.exe C$:/Qt/5.15.2/mingw81_64/bin/uic.exe C$:/Qt/5.15.2/mingw81_64/lib/libQt5Widgets.a
 
 
 #############################################

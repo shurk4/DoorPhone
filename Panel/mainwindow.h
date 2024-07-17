@@ -8,6 +8,7 @@
 #include <QAudioOutput>
 
 #include "server.h"
+#include "udpnet.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -28,9 +29,16 @@ private slots:
     void reciveMessage(QString message);
     void reciveAudio(QByteArray sample);
 
+    void slotData(QByteArray _data);
+
+    void on_pushButtonSend_clicked();
+
 private:
     Ui::MainWindow *ui;
     Server server;
+
+    UDPNet network;
+    int port = 2024;
 
     QAudioDeviceInfo inputDeviceInfo;
     QAudioDeviceInfo outputDeviceInfo;
@@ -40,7 +48,8 @@ private:
     QIODevice *inputDevice;
     QIODevice *outputDevice;
     QByteArray buffer;
-    int volume = 100;
+
+    int volume = 99;
 
     void initializeAudio();
     void createAudioInput();

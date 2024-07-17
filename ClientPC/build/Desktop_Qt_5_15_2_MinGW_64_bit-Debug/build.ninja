@@ -73,6 +73,14 @@ build CMakeFiles/ClientPC.dir/mainwindow.cpp.obj: CXX_COMPILER__ClientPC_unscann
   OBJECT_DIR = CMakeFiles\ClientPC.dir
   OBJECT_FILE_DIR = CMakeFiles\ClientPC.dir
 
+build CMakeFiles/ClientPC.dir/udpnet.cpp.obj: CXX_COMPILER__ClientPC_unscanned_Debug D$:/Programming/C++/Work/DoorPhone/ClientPC/udpnet.cpp || cmake_object_order_depends_target_ClientPC
+  DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_MULTIMEDIA_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB
+  DEP_FILE = CMakeFiles\ClientPC.dir\udpnet.cpp.obj.d
+  FLAGS = -DQT_QML_DEBUG -g -std=gnu++17 -fdiagnostics-color=always
+  INCLUDES = -ID:/Programming/C++/Work/DoorPhone/ClientPC/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/ClientPC_autogen/include -isystem C:/Qt/5.15.2/mingw81_64/include -isystem C:/Qt/5.15.2/mingw81_64/include/QtWidgets -isystem C:/Qt/5.15.2/mingw81_64/include/QtGui -isystem C:/Qt/5.15.2/mingw81_64/include/QtANGLE -isystem C:/Qt/5.15.2/mingw81_64/include/QtCore -isystem C:/Qt/5.15.2/mingw81_64/./mkspecs/win32-g++ -isystem C:/Qt/5.15.2/mingw81_64/include/QtNetwork -isystem C:/Qt/5.15.2/mingw81_64/include/QtMultimedia
+  OBJECT_DIR = CMakeFiles\ClientPC.dir
+  OBJECT_FILE_DIR = CMakeFiles\ClientPC.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target ClientPC
@@ -81,7 +89,7 @@ build CMakeFiles/ClientPC.dir/mainwindow.cpp.obj: CXX_COMPILER__ClientPC_unscann
 #############################################
 # Link the executable ClientPC.exe
 
-build ClientPC.exe: CXX_EXECUTABLE_LINKER__ClientPC_Debug CMakeFiles/ClientPC.dir/ClientPC_autogen/mocs_compilation.cpp.obj CMakeFiles/ClientPC.dir/main.cpp.obj CMakeFiles/ClientPC.dir/mainwindow.cpp.obj | C$:/Qt/5.15.2/mingw81_64/lib/libQt5Widgets.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Multimedia.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Network.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Gui.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Core.a C$:/Qt/5.15.2/mingw81_64/lib/libqtmain.a || ClientPC_autogen ClientPC_autogen_timestamp_deps
+build ClientPC.exe: CXX_EXECUTABLE_LINKER__ClientPC_Debug CMakeFiles/ClientPC.dir/ClientPC_autogen/mocs_compilation.cpp.obj CMakeFiles/ClientPC.dir/main.cpp.obj CMakeFiles/ClientPC.dir/mainwindow.cpp.obj CMakeFiles/ClientPC.dir/udpnet.cpp.obj | C$:/Qt/5.15.2/mingw81_64/lib/libQt5Widgets.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Multimedia.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Network.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Gui.a C$:/Qt/5.15.2/mingw81_64/lib/libQt5Core.a C$:/Qt/5.15.2/mingw81_64/lib/libqtmain.a || ClientPC_autogen ClientPC_autogen_timestamp_deps
   FLAGS = -DQT_QML_DEBUG -g
   LINK_FLAGS = -mwindows
   LINK_LIBRARIES = C:/Qt/5.15.2/mingw81_64/lib/libQt5Widgets.a  C:/Qt/5.15.2/mingw81_64/lib/libQt5Multimedia.a  C:/Qt/5.15.2/mingw81_64/lib/libQt5Network.a  C:/Qt/5.15.2/mingw81_64/lib/libQt5Gui.a  C:/Qt/5.15.2/mingw81_64/lib/libQt5Core.a  C:/Qt/5.15.2/mingw81_64/lib/libqtmain.a  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
