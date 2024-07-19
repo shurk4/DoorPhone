@@ -1,10 +1,9 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-const int BufferSize = 14096;
+//const int BufferSize = 14096;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , buffer(BufferSize, 0)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -42,6 +41,7 @@ void MainWindow::readInput()
         return;
 
     network.sendData(inputDevice->readAll());
+//    outputDevice->write(inputDevice->readAll());
 }
 
 int MainWindow::applyVolumeToSample(short iSample)
@@ -69,10 +69,10 @@ void MainWindow::initializeAudio()
 {
     audioFormat.setSampleRate(8000); //set frequency to 8000
     audioFormat.setChannelCount(1); //set channels to mono
-    audioFormat.setSampleSize(16); //set sample size to 16 bit
+    audioFormat.setSampleSize(8); //set sample size to 16 bit
     audioFormat.setSampleType(QAudioFormat::UnSignedInt ); //Sample type as usigned integer sample
     audioFormat.setByteOrder(QAudioFormat::LittleEndian); //Byte order
-    audioFormat.setCodec("audio/pcm"); //set codec as simple audio/pcm
+    audioFormat.setCodec("audio/pcm"); //set codec as simple audio/pc434
 
     QAudioDeviceInfo infoIn(QAudioDeviceInfo::defaultInputDevice());
     if (!infoIn.isFormatSupported(audioFormat))
