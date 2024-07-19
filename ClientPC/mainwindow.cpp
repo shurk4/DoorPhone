@@ -86,18 +86,24 @@ void MainWindow::on_pushButtonSend_clicked()
 
 void MainWindow::readInput()
 {
-    //Return if audio input is null
+    // //Return if audio input is null
     if(!audioInput)
         return;
 
     network.sendData(inputDevice->readAll());
 }
 
+int MainWindow::applyVolumeToSample(short iSample)
+{
+    //Calculate volume, Volume limited to  max 35535 and min -35535
+    return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
+}
+
 void MainWindow::initializeAudio()
 {
     audioFormat.setSampleRate(8000); //set frequency to 8000
     audioFormat.setChannelCount(1); //set channels to mono
-    audioFormat.setSampleSize(16); //set sample size to 16 bit
+    audioFormat.setSampleSize(8); //set sample size to 16 bit
     audioFormat.setSampleType(QAudioFormat::UnSignedInt ); //Sample type as usigned integer sample
     audioFormat.setByteOrder(QAudioFormat::LittleEndian); //Byte order
     audioFormat.setCodec("audio/pcm"); //set codec as simple audio/pcm
@@ -133,12 +139,7 @@ void MainWindow::createAudioInput()
     }
 
     audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
-}
-
-int MainWindow::applyVolumeToSample(short iSample)
-{
-    //Calculate volume, Volume limited to  max 35535 and min -35535
-    return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
+    // audioInput.
 }
 
 void MainWindow::startAudio()
