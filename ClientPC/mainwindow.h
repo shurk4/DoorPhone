@@ -37,6 +37,11 @@ class MainWindow : public QMainWindow
     QByteArray buffer;
     int volume = 100;
 
+    int volMin = 0;
+    int raznMin = 0;
+    int volMax = 0;
+    int raznMax = 0;
+
     void initializeAudio();
     void createAudioInput();
     void createAudioOutput();
