@@ -6,6 +6,7 @@
 #include <QNetworkDatagram>
 #include <QNetworkProxy>
 #include <QNetworkInterface>
+#include <iostream>
 
 class UDPNet : public QObject
 {
@@ -33,9 +34,15 @@ public:
 
     void sendData(QByteArray _data);
 
+    void printLocalIPs();
+
+    QList<QHostAddress> getLocalAdresses();
+    QList<QNetworkInterface> getInterfaces();
+
 public slots:
     void readUdp();
     void socketDisconnected();
+
 
 signals:
     void signalData(QByteArray);

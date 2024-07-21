@@ -9,6 +9,7 @@
 
 #include "server.h"
 #include "udpnet.h"
+#include "pins.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -20,9 +21,23 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+    int buttonCallPin = 11;
+
+    int out1Pin = 12;
+    int out2Pin = 14;
+
+    void listInterfaces();
+    void listLocalAdresses();
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+signals:
+    void stopPins();
+
+public slots:
+    void btnStateChanged(int _pin, int _state);
 
 private slots:
     void readInput();
@@ -32,6 +47,10 @@ private slots:
     void slotData(QByteArray _data);
 
     void on_pushButtonSend_clicked();
+
+    void on_pushButton1_clicked();
+
+    void on_pushButton2_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -59,5 +78,11 @@ private:
 
     void startAudio();
     void playBuffer(QByteArray &buffer);
+
+    //For orangePI buttons list
+    Pins buttons;
+    QVector<int>buttonsPins;
+
+    QThread lookupSensorsThread;
 };
 #endif // MAINWINDOW_H

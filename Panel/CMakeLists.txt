@@ -9,8 +9,13 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_library(WIRINGPI_LIBRARIES NAMES wiringPi)
+find_path(WIRINGPI_INCLUDE_DIRS NAMES wiringPi.h)
+
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets WiringPi Threads)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia)
+
+include_directories(${WIRINGPI_INCLUDE_DIRS})
 
 set(PROJECT_SOURCES
         main.cpp
@@ -20,8 +25,12 @@ set(PROJECT_SOURCES
 
         server.h
         server.cpp
+
         udpnet.h
         udpnet.cpp
+
+        pins.h
+        pins.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -47,7 +56,9 @@ else()
     endif()
 endif()
 
-target_link_libraries(Panel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Multimedia)
+target_link_libraries(Panel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Multimedia
+    ${WIRINGPI_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT})
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
