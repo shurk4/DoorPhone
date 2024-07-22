@@ -39,7 +39,7 @@ uint UDPNet::getPort()
 void UDPNet::sendData(QByteArray _data)
 {
     udpSocket->writeDatagram(_data, QHostAddress::Broadcast, port);
-    toLog("Data sended: " + _data);
+    toLog(">");
 }
 
 void UDPNet::initUdp()
@@ -72,7 +72,7 @@ void UDPNet::readUdp()
         QNetworkDatagram datagram = udpSocket->receiveDatagram();
         if(!QNetworkInterface::allAddresses().contains(datagram.senderAddress()))
         {
-            toLog("Recived data:" + QString::fromUtf8(datagram.data()));
+            toLog("<");
             emit signalData(datagram.data());
         }
     }
