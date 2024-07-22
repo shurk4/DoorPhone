@@ -6,6 +6,7 @@
 #include <QAudioDeviceInfo>
 #include <QAudioInput>
 #include <QAudioOutput>
+#include <QSettings>
 
 #include "server.h"
 #include "udpnet.h"
@@ -22,12 +23,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     int buttonCallPin = 11;
-
     int out1Pin = 12;
     int out2Pin = 14;
-
-    void listInterfaces();
-    void listLocalAdresses();
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -42,9 +39,7 @@ public slots:
 private slots:
     void readInput();
     void reciveMessage(QString message);
-    void reciveAudio(QByteArray sample);
-
-    void slotData(QByteArray _data);
+    void slotData(QByteArray _data); // Play sound from udp
 
     void on_pushButtonSend_clicked();
 
@@ -54,11 +49,22 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    // Basic
+    void readSettings();
+    void writeSettins();
+
+    void toLog(QString _log);
+
+    // Lan
     Server server;
-
     UDPNet network;
-    int port = 2024;
 
+    void startNetwork();
+    void listInterfaces();
+    void listLocalAdresses();
+
+    // Audio
     QAudioDeviceInfo inputDeviceInfo;
     QAudioDeviceInfo outputDeviceInfo;
     QAudioFormat audioFormat;
@@ -66,23 +72,25 @@ private:
     QAudioOutput *audioOutput;
     QIODevice *inputDevice;
     QIODevice *outputDevice;
-    QByteArray buffer;
+//    QByteArray buffer;
 
     int volume = 99;
 
-    void initializeAudio();
+    void prepareAudio();
+    void initAudio();
     void createAudioInput();
     void createAudioOutput();
+    void startAudio();
+    void stopAudio();
+    void playBuffer(QByteArray &buffer);
 
     int applyVolumeToSample(short iSample);
 
-    void startAudio();
-    void playBuffer(QByteArray &buffer);
-
-    //For orangePI buttons list
-    Pins buttons;
+    //For orangePI GPIO
     QVector<int>buttonsPins;
 
+    Pins buttons;
     QThread lookupSensorsThread;
+    void initGPIO();
 };
 #endif // MAINWINDOW_H

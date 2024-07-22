@@ -28,7 +28,7 @@ void UDPNet::setInterfaceByIndex(int index)
 void UDPNet::setPort(uint _port)
 {
     port = _port;
-    toLog("New port: " + QString::number(_port));
+    toLog("Set UDP port: " + QString::number(_port));
 }
 
 uint UDPNet::getPort()
@@ -39,7 +39,7 @@ uint UDPNet::getPort()
 void UDPNet::sendData(QByteArray _data)
 {
     udpSocket->writeDatagram(_data, QHostAddress::Broadcast, port);
-    std::cout << ".";
+    std::cout << ">";
 }
 
 void UDPNet::initUdp()
@@ -48,8 +48,6 @@ void UDPNet::initUdp()
     if(!online)
     {
         udpSocket = new QUdpSocket(this);
-        // udpSocket->setProxy(QNetworkProxy::NoProxy); // !!! Не помогло
-        // udpSocket->setMulticastInterface(QNetworkInterface::interfaceFromIndex(selectedInterface)); // Не помогло
         udpSocket->bind(QHostAddress::AnyIPv4, port);
 
         connect(udpSocket, &QUdpSocket::readyRead, this, &UDPNet::readUdp);
@@ -75,7 +73,7 @@ void UDPNet::readUdp()
         QNetworkDatagram datagram = udpSocket->receiveDatagram();
         if(!QNetworkInterface::allAddresses().contains(datagram.senderAddress()))
         {
-            std::cout << ".";
+            std::cout << "<";
             emit signalData(datagram.data());
         }
     }

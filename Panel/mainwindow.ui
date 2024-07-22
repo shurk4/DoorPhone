@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
-    <height>341</height>
+    <width>841</width>
+    <height>451</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,38 +18,181 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+       <widget class="QLabel" name="label_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeHint" stdset="0">
+        <property name="text">
+         <string>Interfaces:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBoxInterfaces">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>UDP port:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditPortUdp">
+        <property name="maximumSize">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>50</width>
+          <height>16777215</height>
          </size>
         </property>
-       </spacer>
+       </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBoxInterfaces"/>
+       <widget class="QLabel" name="label_5">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>TCP port:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEditIP"/>
+       <widget class="QLineEdit" name="lineEditPortTcp">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Local adresses</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEditPort"/>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Clients</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>mic</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="verticalSliderSpcVol">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksBothSides</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>spc</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="verticalSliderMicVol">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksBothSides</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QListWidget" name="listWidgetIPs"/>
       </item>
       <item>
-       <widget class="QTextBrowser" name="textBrowser"/>
+       <widget class="QListWidget" name="listWidgetClients"/>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QTextBrowser" name="textBrowser"/>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -120,7 +263,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>476</width>
+     <width>841</width>
      <height>19</height>
     </rect>
    </property>

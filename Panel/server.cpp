@@ -41,7 +41,7 @@ void Server::closeEvent(QCloseEvent *event)
 void Server::log(QString msg)
 {
     qDebug() << msg;
-    emit signalSendText(msg);
+    emit signalSendText("TCP: " + msg);
 }
 
 
@@ -106,7 +106,7 @@ void Server::socketReady()
 {
     for(auto &socket : sockets)
     {
-        emit signalSendBytes(socket->readAll());
+        emit signalSendText(socket->readAll());
     }
 }
 

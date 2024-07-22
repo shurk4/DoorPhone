@@ -1,22 +1,5 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-//const int BufferSize = 14096;
-
-void MainWindow::listInterfaces()
-{
-    for(auto &i : network.getInterfaces())
-    {
-        ui->comboBoxInterfaces->addItem(i.humanReadableName());
-    }
-}
-
-void MainWindow::listLocalAdresses()
-{
-    for(auto i : network.getLocalAdresses())
-    {
-        ui->listWidgetIPs->addItem(i.toString());
-    }
-}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,27 +7,179 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    readSettings();
+
+    prepareAudio();
+    initAudio();
+    startAudio();
+
+    startNetwork();
+
+    // Pins control
+    initGPIO();
+    // Pins control
+
+    // Offed functions
+    qDebug() << "\n-------------------------ATTANSION---------------------------\n";
+    qDebug() << "No attansions";
+    qDebug() << "\n";
+
+    // Load UI
+    listInterfaces();
+    listLocalAdresses();
+}
+
+MainWindow::~MainWindow()
+{
+    writeSettins();
+    delete ui;
+}
+
+void MainWindow::readSettings()
+{
+    toLog("\nRead settings");
+    QSettings settings("ShurkSoft", "Door Phone Panel");
+    settings.beginGroup("settings");
+    ui->lineEditPortUdp->setText(settings.value("UDP port").toString());
+    ui->lineEditPortTcp->setText(settings.value("TCP port").toString());
+//    ui->verticalSlid
+    settings.endGroup();
+    toLog("OK");
+}
+
+void MainWindow::writeSettins()
+{
+    toLog("\nWrite settings");
+    QSettings settings("ShurkSoft", "Door Phone Panel");
+    settings.beginGroup("settings");
+    settings.setValue("UDP port", ui->lineEditPortUdp->text());
+    settings.setValue("TCP port", ui->lineEditPortTcp->text());
+    settings.endGroup();
+    toLog("OK");
+}
+
+void MainWindow::toLog(QString _log)
+{
+    qDebug() << _log;
+    ui->textBrowser->append(_log);
+}
+
+void MainWindow::startNetwork()
+{
+    toLog("\nStarting network");
+    toLog(" TCP Server");
+    server.startServer(ui->lineEditPortTcp->text().toInt());
+    connect(&server, &Server::signalSendText, this, &MainWindow::reciveMessage);
+    toLog(" OK");
+
+    toLog(" UDP");
+    network.setPort(ui->lineEditPortUdp->text().toInt());
+    network.initUdp();
+    connect(&network, &UDPNet::signalData, this, &MainWindow::slotData);
+    toLog(" OK");
+    toLog("OK");
+}
+
+void MainWindow::listInterfaces()
+{
+    toLog("\nListining interfaces");
+    for(auto &i : network.getInterfaces())
+    {
+        ui->comboBoxInterfaces->addItem(i.humanReadableName());
+    }
+    toLog("OK");
+}
+
+void MainWindow::listLocalAdresses()
+{
+    toLog("Listeniong local adresses");
+    for(auto i : network.getLocalAdresses())
+    {
+        ui->listWidgetIPs->addItem(i.toString());
+    }
+    toLog("OK");
+}
+
+void MainWindow::prepareAudio()
+{
+    toLog("Preparing audio system");
     inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
     outputDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
     audioInput = 0;
     audioOutput = 0;
     inputDevice = 0;
     outputDevice = 0;
+}
 
-    initializeAudio();
-    startAudio();
+void MainWindow::initAudio()
+{
+    toLog("Initialize audio format");
+    audioFormat.setSampleRate(8000); //set frequency to 8000
+    audioFormat.setChannelCount(1); //set channels to mono
+    audioFormat.setSampleSize(8); //set sample size to 16 bit
+    audioFormat.setSampleType(QAudioFormat::UnSignedInt ); //Sample type as usigned integer sample
+    audioFormat.setByteOrder(QAudioFormat::LittleEndian); //Byte order
+    audioFormat.setCodec("audio/pcm"); //set codec as simple audio/pc434
 
-    server.startServer(2024);
-    connect(&server, &Server::signalSendText, this, &MainWindow::reciveMessage);
-    connect(&server, &Server::signalSendBytes, this, &MainWindow::reciveAudio);
+    QAudioDeviceInfo infoIn(QAudioDeviceInfo::defaultInputDevice());
+    if (!infoIn.isFormatSupported(audioFormat))
+    {
+        //Default format not supported - trying to use nearest
+        audioFormat = infoIn.nearestFormat(audioFormat);
+    }
 
-    network.setPort(port);
-    network.initUdp();
+    QAudioDeviceInfo infoOut(QAudioDeviceInfo::defaultOutputDevice());
 
-    connect(&network, &UDPNet::signalData, this, &MainWindow::slotData);
+    if (!infoOut.isFormatSupported(audioFormat))
+    {
+        //Default format not supported - trying to use nearest
+        audioFormat = infoOut.nearestFormat(audioFormat);
+    }
+    createAudioInput();
+    createAudioOutput();
+}
 
-    // Pins control
-    qDebug() << "Starting wiringOP";
+void MainWindow::createAudioInput()
+{
+    if (inputDevice != 0) {
+        disconnect(inputDevice, 0, this, 0);
+        inputDevice = 0;
+    }
+
+    audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
+}
+
+void MainWindow::createAudioOutput()
+{
+    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
+}
+
+void MainWindow::startAudio()
+{
+    toLog("Audio turn on");
+    //Audio output device
+    outputDevice = audioOutput->start();
+        //Audio input device
+    inputDevice = audioInput->start();
+    //connect readyRead signal to readMre slot.
+    //Call readmore when audio samples fill in inputbuffer
+    connect(inputDevice, &QIODevice::readyRead, this, &MainWindow::readInput);
+}
+
+void MainWindow::stopAudio()
+{
+    toLog("Audio turn off");
+//    delete outputDevice;
+    outputDevice->close();
+//    delete inputDevice;
+    inputDevice->close();
+    disconnect(inputDevice, &QIODevice::readyRead, this, &MainWindow::readInput);
+}
+
+
+void MainWindow::initGPIO()
+{
+    toLog("\nInitializin GPIO");
     wiringPiSetup();
 
     pinMode(out1Pin, OUTPUT);
@@ -60,21 +195,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     buttons.moveToThread(&lookupSensorsThread);
     lookupSensorsThread.start();
-    // Pins control
-
-    // Offed functions
-    qDebug() << "\n-------------------------ATTANSION---------------------------\n";
-    qDebug() << "startAudio is OFF";
-
-    qDebug() << "\n";
-
-    // Load UI
-    listInterfaces();
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
+    toLog("OK");
 }
 
 void MainWindow::readInput()
@@ -106,70 +227,12 @@ int MainWindow::applyVolumeToSample(short iSample)
 
 void MainWindow::reciveMessage(QString message)
 {
-    ui->textBrowser->append(message);
-}
-
-void MainWindow::reciveAudio(QByteArray sample)
-{
-    ui->textBrowser->append(QString(sample));
+    toLog("Message: " + message);
 }
 
 void MainWindow::slotData(QByteArray _data)
 {
     outputDevice->write(_data);
-}
-
-void MainWindow::initializeAudio()
-{
-    audioFormat.setSampleRate(8000); //set frequency to 8000
-    audioFormat.setChannelCount(1); //set channels to mono
-    audioFormat.setSampleSize(8); //set sample size to 16 bit
-    audioFormat.setSampleType(QAudioFormat::UnSignedInt ); //Sample type as usigned integer sample
-    audioFormat.setByteOrder(QAudioFormat::LittleEndian); //Byte order
-    audioFormat.setCodec("audio/pcm"); //set codec as simple audio/pc434
-
-    QAudioDeviceInfo infoIn(QAudioDeviceInfo::defaultInputDevice());
-    if (!infoIn.isFormatSupported(audioFormat))
-    {
-        //Default format not supported - trying to use nearest
-        audioFormat = infoIn.nearestFormat(audioFormat);
-    }
-
-    QAudioDeviceInfo infoOut(QAudioDeviceInfo::defaultOutputDevice());
-
-    if (!infoOut.isFormatSupported(audioFormat))
-    {
-        //Default format not supported - trying to use nearest
-        audioFormat = infoOut.nearestFormat(audioFormat);
-    }
-    createAudioInput();
-    createAudioOutput();
-}
-
-void MainWindow::createAudioOutput()
-{
-    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
-}
-
-void MainWindow::startAudio()
-{
-    //Audio output device
-    outputDevice = audioOutput->start();
-        //Audio input device
-    inputDevice = audioInput->start();
-    //connect readyRead signal to readMre slot.
-    //Call readmore when audio samples fill in inputbuffer
-    connect(inputDevice, SIGNAL(readyRead()), SLOT(readInput()));
-}
-
-void MainWindow::createAudioInput()
-{
-    if (inputDevice != 0) {
-        disconnect(inputDevice, 0, this, 0);
-        inputDevice = 0;
-    }
-
-    audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
 }
 
 void MainWindow::on_pushButtonSend_clicked()
@@ -192,7 +255,6 @@ void MainWindow::on_pushButton1_clicked()
     }
     digitalWrite(out1Pin, HIGH);
 }
-
 
 void MainWindow::on_pushButton2_clicked()
 {
