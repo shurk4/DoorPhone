@@ -39,11 +39,12 @@ uint UDPNet::getPort()
 void UDPNet::sendData(QByteArray _data)
 {
     udpSocket->writeDatagram(_data, QHostAddress::Broadcast, port);
-    toLog("Data sended: " + _data);
+    std::cout << ".";
 }
 
 void UDPNet::initUdp()
 {
+    toLog("Initializing UDP");
     if(!online)
     {
         udpSocket = new QUdpSocket(this);
@@ -53,8 +54,10 @@ void UDPNet::initUdp()
 
         connect(udpSocket, &QUdpSocket::readyRead, this, &UDPNet::readUdp);
         connect(udpSocket, &QUdpSocket::disconnected, this, &UDPNet::socketDisconnected);
-        toLog("Udp connection estabilished");
         online = true;
+
+        printLocalIPs();
+        toLog("Udp connection estabilished");
         return;
     }
     toLog("Already connected");
@@ -72,7 +75,7 @@ void UDPNet::readUdp()
         QNetworkDatagram datagram = udpSocket->receiveDatagram();
         if(!QNetworkInterface::allAddresses().contains(datagram.senderAddress()))
         {
-            toLog("Recived data:" + QString::fromUtf8(datagram.data()));
+            std::cout << ".";
             emit signalData(datagram.data());
         }
     }
@@ -86,4 +89,25 @@ void UDPNet::socketDisconnected()
     toLog("Socket disconnected");
 
     online = false;
+}
+
+void UDPNet::printLocalIPs()
+{
+    toLog("\n--- LocalIPs: ");
+
+    for(auto i : QNetworkInterface::allAddresses())
+    {
+        toLog(i.toString());
+    }
+    toLog("\n--------------\n");
+}
+
+QList<QHostAddress> UDPNet::getLocalAdresses()
+{
+    return QNetworkInterface::allAddresses();
+}
+
+QList<QNetworkInterface> UDPNet::getInterfaces()
+{
+    return::QNetworkInterface::allInterfaces();
 }

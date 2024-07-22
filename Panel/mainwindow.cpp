@@ -2,6 +2,22 @@
 #include "./ui_mainwindow.h"
 //const int BufferSize = 14096;
 
+void MainWindow::listInterfaces()
+{
+    for(auto &i : network.getInterfaces())
+    {
+        ui->comboBoxInterfaces->addItem(i.humanReadableName());
+    }
+}
+
+void MainWindow::listLocalAdresses()
+{
+    for(auto i : network.getLocalAdresses())
+    {
+        ui->listWidgetIPs->addItem(i.toString());
+    }
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -22,11 +38,38 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&server, &Server::signalSendText, this, &MainWindow::reciveMessage);
     connect(&server, &Server::signalSendBytes, this, &MainWindow::reciveAudio);
 
-
     network.setPort(port);
     network.initUdp();
 
     connect(&network, &UDPNet::signalData, this, &MainWindow::slotData);
+
+    // Pins control
+    qDebug() << "Starting wiringOP";
+    wiringPiSetup();
+
+    pinMode(out1Pin, OUTPUT);
+    pinMode(out2Pin, OUTPUT);
+
+    buttonsPins.push_back(buttonCallPin);
+    buttons.setPins(buttonsPins);
+
+    connect(this, &MainWindow::stopPins, &buttons, &Pins::stopLoop);
+    connect(&buttons, &Pins::btnStateChanged, this, &MainWindow::btnStateChanged);
+    connect(&lookupSensorsThread, &QThread::started, &buttons, &Pins::run);
+    connect(&buttons, &Pins::finished, &lookupSensorsThread, &QThread::terminate);
+
+    buttons.moveToThread(&lookupSensorsThread);
+    lookupSensorsThread.start();
+    // Pins control
+
+    // Offed functions
+    qDebug() << "\n-------------------------ATTANSION---------------------------\n";
+    qDebug() << "startAudio is OFF";
+
+    qDebug() << "\n";
+
+    // Load UI
+    listInterfaces();
 }
 
 MainWindow::~MainWindow()
@@ -37,11 +80,22 @@ MainWindow::~MainWindow()
 void MainWindow::readInput()
 {
     //Return if audio input is null
-    if(!audioInput)
+    if(!audioInput){
         return;
+    }
+
+//    if(mute)
+//    {
+//        return;
+//    }
+
+//    if(echo)
+//    {
+    //    outputDevice->write(inputDevice->readAll());
+
+//    }
 
     network.sendData(inputDevice->readAll());
-//    outputDevice->write(inputDevice->readAll());
 }
 
 int MainWindow::applyVolumeToSample(short iSample)
@@ -124,3 +178,28 @@ void MainWindow::on_pushButtonSend_clicked()
     ui->lineEditMessage->clear();
 }
 
+void MainWindow::btnStateChanged(int _pin, int _state)
+{
+    ui->pushButtonCall->setChecked(_state);
+}
+
+void MainWindow::on_pushButton1_clicked()
+{
+    if(digitalRead(out1Pin) == HIGH)
+    {
+        digitalWrite(out1Pin, LOW);
+        return;
+    }
+    digitalWrite(out1Pin, HIGH);
+}
+
+
+void MainWindow::on_pushButton2_clicked()
+{
+    if(digitalRead(out2Pin) == HIGH)
+    {
+        digitalWrite(out2Pin, LOW);
+        return;
+    }
+    digitalWrite(out2Pin, HIGH);
+}
