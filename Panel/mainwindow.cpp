@@ -37,23 +37,38 @@ MainWindow::~MainWindow()
 
 void MainWindow::readSettings()
 {
-    toLog("\nRead settings");
+    toLog("");
+    toLog("Read settings");
     QSettings settings("ShurkSoft", "Door Phone Panel");
     settings.beginGroup("settings");
     ui->lineEditPortUdp->setText(settings.value("UDP port").toString());
     ui->lineEditPortTcp->setText(settings.value("TCP port").toString());
-//    ui->verticalSlid
+
+    ui->verticalSliderSpkVol->blockSignals(true);
+    ui->verticalSliderSpkVol->setValue(settings.value("spkVol").toInt());
+    ui->labelSpkVol->setText(settings.value("spkVol").toString());
+    ui->verticalSliderSpkVol->blockSignals(false);
+    ui->verticalSliderMicVol->blockSignals(true);
+    ui->verticalSliderMicVol->setValue(settings.value("micVol").toInt());
+    ui->labelMicVol->setText(settings.value("micVol").toString());
+    ui->verticalSliderMicVol->blockSignals(false);
+
+    this->restoreGeometry(settings.value("window geometry").toByteArray());
     settings.endGroup();
     toLog("OK");
 }
 
 void MainWindow::writeSettins()
 {
-    toLog("\nWrite settings");
+    toLog("");
+    toLog("Write settings");
     QSettings settings("ShurkSoft", "Door Phone Panel");
     settings.beginGroup("settings");
     settings.setValue("UDP port", ui->lineEditPortUdp->text());
     settings.setValue("TCP port", ui->lineEditPortTcp->text());
+    settings.setValue("spkVol", ui->verticalSliderSpkVol->value());
+    settings.setValue("micVol", ui->verticalSliderMicVol->value());
+    settings.setValue("window geometry", this->saveGeometry());
     settings.endGroup();
     toLog("OK");
 }
@@ -66,7 +81,8 @@ void MainWindow::toLog(QString _log)
 
 void MainWindow::startNetwork()
 {
-    toLog("\nStarting network");
+    toLog("");
+    toLog("Starting network");
     toLog(" TCP Server");
     server.startServer(ui->lineEditPortTcp->text().toInt());
     connect(&server, &Server::signalSendText, this, &MainWindow::reciveMessage);
@@ -82,7 +98,8 @@ void MainWindow::startNetwork()
 
 void MainWindow::listInterfaces()
 {
-    toLog("\nListining interfaces");
+    toLog("");
+    toLog("Listining interfaces");
     for(auto &i : network.getInterfaces())
     {
         ui->comboBoxInterfaces->addItem(i.humanReadableName());
@@ -92,6 +109,7 @@ void MainWindow::listInterfaces()
 
 void MainWindow::listLocalAdresses()
 {
+    toLog("");
     toLog("Listeniong local adresses");
     for(auto i : network.getLocalAdresses())
     {
@@ -102,6 +120,7 @@ void MainWindow::listLocalAdresses()
 
 void MainWindow::prepareAudio()
 {
+    toLog("");
     toLog("Preparing audio system");
     inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
     outputDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
@@ -109,10 +128,12 @@ void MainWindow::prepareAudio()
     audioOutput = 0;
     inputDevice = 0;
     outputDevice = 0;
+    toLog("OK");
 }
 
 void MainWindow::initAudio()
 {
+    toLog("");
     toLog("Initialize audio format");
     audioFormat.setSampleRate(8000); //set frequency to 8000
     audioFormat.setChannelCount(1); //set channels to mono
@@ -137,49 +158,72 @@ void MainWindow::initAudio()
     }
     createAudioInput();
     createAudioOutput();
+
+    toLog("Audio is initialized");
 }
 
 void MainWindow::createAudioInput()
 {
+    toLog("");
+    toLog("Create audio input");
     if (inputDevice != 0) {
         disconnect(inputDevice, 0, this, 0);
         inputDevice = 0;
     }
-
-    audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
+    audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);    
+    toLog("OK");
 }
 
 void MainWindow::createAudioOutput()
 {
+    toLog("");
+    toLog("Create audio output");
     audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
+    toLog("OK");
 }
 
 void MainWindow::startAudio()
 {
+    toLog("");
     toLog("Audio turn on");
     //Audio output device
+    audioOutput->setVolume(ui->verticalSliderSpkVol->value());
     outputDevice = audioOutput->start();
         //Audio input device
+    audioInput->setVolume(ui->verticalSliderMicVol->value());
     inputDevice = audioInput->start();
     //connect readyRead signal to readMre slot.
     //Call readmore when audio samples fill in inputbuffer
     connect(inputDevice, &QIODevice::readyRead, this, &MainWindow::readInput);
+    toLog("Current speaker volume: " + QString::number(audioOutput->volume()));
+    toLog("Current microphone voluve: " + QString::number(audioInput->volume()));
+
+    toLog("OK");
 }
 
 void MainWindow::stopAudio()
 {
+    toLog("");
     toLog("Audio turn off");
-//    delete outputDevice;
-    outputDevice->close();
-//    delete inputDevice;
-    inputDevice->close();
-    disconnect(inputDevice, &QIODevice::readyRead, this, &MainWindow::readInput);
+    if (inputDevice != 0)
+    {
+        disconnect(inputDevice, 0, this, 0);
+        inputDevice = 0;
+        toLog(" microphone is off");
+    }
+    if(outputDevice != 0)
+    {
+        outputDevice = 0;
+        toLog(" speakers is off");
+    }
+    toLog("OK");
 }
 
 
 void MainWindow::initGPIO()
 {
-    toLog("\nInitializin GPIO");
+    toLog("");
+    toLog("Initializin GPIO");
     wiringPiSetup();
 
     pinMode(out1Pin, OUTPUT);
@@ -264,4 +308,58 @@ void MainWindow::on_pushButton2_clicked()
         return;
     }
     digitalWrite(out2Pin, HIGH);
+}
+
+void MainWindow::on_verticalSliderSpkVol_valueChanged(int value)
+{
+    ui->labelSpkVol->setText(QString::number(value * 10));
+
+//    if(value == 0)
+//    {
+//        audioOutput->stop();
+//        toLog("Speaker is muted");
+//        return;
+//    }
+
+//    if (audioOutput->state() == QAudio::StoppedState)
+//    {
+//        audioOutput->start();
+//    }
+
+    int vol = ui->verticalSliderSpkVol->value();
+    double volD = (double)vol / 10;
+
+    audioOutput->setVolume(volD);
+    toLog("Current speaker volume: " + QString::number(audioOutput->volume()));
+}
+
+void MainWindow::on_verticalSliderMicVol_valueChanged(int value)
+{
+    ui->labelMicVol->setText(QString::number(value * 10));
+    if(value = 0)
+    {
+        audioInput->stop();
+        return;
+    }
+    else if(audioInput->state() == QAudio::StoppedState)
+    {
+        audioInput->start();
+    }
+
+    int vol = ui->verticalSliderMicVol->value();
+    double volD = (double)vol / 10;
+
+    audioInput->setVolume(volD);
+    toLog("Current microphone volume: " + QString::number(audioInput->volume()));
+}
+
+void MainWindow::on_lineEditVol_editingFinished()
+{
+    int vol = ui->lineEditVol->text().toInt();
+    double volD = (double)vol / 10;
+
+    std::cout << volD;
+    toLog("volD: " + QString::number(volD));
+    audioInput->setVolume(volD);
+    toLog("Current microphone volume: " + QString::number(audioInput->volume()));
 }
