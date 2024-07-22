@@ -303,9 +303,9 @@ D:/Programming/C++/Work/DoorPhone/ClientPC/mainwindow.h
  mdp:D:/Programming/C++/Work/DoorPhone/ClientPC/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/ClientPC_autogen/moc_predefs.h
  mdp:D:/Programming/C++/Work/DoorPhone/ClientPC/mainwindow.h
  mdp:D:/Programming/C++/Work/DoorPhone/ClientPC/udpnet.h
+D:/Programming/C++/Work/DoorPhone/ClientPC/main.cpp
 D:/Programming/C++/Work/DoorPhone/ClientPC/mainwindow.cpp
  uic:./ui_mainwindow.h
-D:/Programming/C++/Work/DoorPhone/ClientPC/main.cpp
 D:/Programming/C++/Work/DoorPhone/ClientPC/udpnet.h
  mmc:Q_OBJECT
  mdp:C:/Qt/5.15.2/mingw81_64/include/QtCore/QObject
