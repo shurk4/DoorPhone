@@ -1,17 +1,4 @@
 Panel_autogen/timestamp: \
-	C:/Programming/DoorPhone/Panel/CMakeLists.txt \
-	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/.qtc/package-manager/auto-setup.cmake \
-	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/CMakeFiles/3.27.7/CMakeCXXCompiler.cmake \
-	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/CMakeFiles/3.27.7/CMakeRCCompiler.cmake \
-	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/CMakeFiles/3.27.7/CMakeSystem.cmake \
-	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/moc_predefs.h \
-	C:/Programming/DoorPhone/Panel/main.cpp \
-	C:/Programming/DoorPhone/Panel/mainwindow.cpp \
-	C:/Programming/DoorPhone/Panel/mainwindow.h \
-	C:/Programming/DoorPhone/Panel/server.cpp \
-	C:/Programming/DoorPhone/Panel/server.h \
-	C:/Programming/DoorPhone/Panel/udpnet.cpp \
-	C:/Programming/DoorPhone/Panel/udpnet.h \
 	C:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
 	C:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
 	C:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
@@ -448,5 +435,18 @@ Panel_autogen/timestamp: \
 	C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/vadefs.h \
 	C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/wchar.h \
 	C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/wctype.h \
-	C:/Programming/DoorPhone/Panel/mainwindow.ui \
+	D:/Programming/C++/Work/DoorPhone/Panel/CMakeLists.txt \
+	D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/.qtc/package-manager/auto-setup.cmake \
+	D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/CMakeFiles/3.27.7/CMakeCXXCompiler.cmake \
+	D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/CMakeFiles/3.27.7/CMakeRCCompiler.cmake \
+	D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/CMakeFiles/3.27.7/CMakeSystem.cmake \
+	D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/moc_predefs.h \
+	D:/Programming/C++/Work/DoorPhone/Panel/main.cpp \
+	D:/Programming/C++/Work/DoorPhone/Panel/mainwindow.cpp \
+	D:/Programming/C++/Work/DoorPhone/Panel/mainwindow.h \
+	D:/Programming/C++/Work/DoorPhone/Panel/server.cpp \
+	D:/Programming/C++/Work/DoorPhone/Panel/server.h \
+	D:/Programming/C++/Work/DoorPhone/Panel/udpnet.cpp \
+	D:/Programming/C++/Work/DoorPhone/Panel/udpnet.h \
+	D:/Programming/C++/Work/DoorPhone/Panel/mainwindow.ui \
 	C:/Qt/Tools/CMake_64/bin/cmake.exe

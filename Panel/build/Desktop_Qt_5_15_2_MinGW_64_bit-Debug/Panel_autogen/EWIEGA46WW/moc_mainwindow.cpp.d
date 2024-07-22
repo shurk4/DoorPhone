@@ -1,7 +1,5 @@
-C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/EWIEGA46WW/moc_mainwindow.cpp: C:/Programming/DoorPhone/Panel/mainwindow.h \
-  C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/moc_predefs.h \
-  C:/Programming/DoorPhone/Panel/server.h \
-  C:/Programming/DoorPhone/Panel/udpnet.h \
+D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/EWIEGA46WW/moc_mainwindow.cpp: D:/Programming/C++/Work/DoorPhone/Panel/mainwindow.h \
+  D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/moc_predefs.h \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
   C:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
@@ -313,4 +311,6 @@ C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_
   C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/sys/types.h \
   C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/vadefs.h \
   C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/wchar.h \
-  C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/wctype.h
+  C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include/wctype.h \
+  D:/Programming/C++/Work/DoorPhone/Panel/server.h \
+  D:/Programming/C++/Work/DoorPhone/Panel/udpnet.h

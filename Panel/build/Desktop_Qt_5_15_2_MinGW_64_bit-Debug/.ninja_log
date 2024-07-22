@@ -1,17 +1,11 @@
 # ninja log v5
-3	2109	7429305085930547	Panel_autogen/timestamp	7f5708ea63855aa3
-3	2109	7429305085930547	Panel_autogen/mocs_compilation.cpp	7f5708ea63855aa3
-3	2109	7429305085930547	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/timestamp	7f5708ea63855aa3
-3	2109	7429305085930547	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/mocs_compilation.cpp	7f5708ea63855aa3
-2138	9418	7429305159624778	CMakeFiles/Panel.dir/udpnet.cpp.obj	7338e2ba54be1244
-2131	10141	7429305167234544	CMakeFiles/Panel.dir/main.cpp.obj	fe2607139d2358ed
-2124	10259	7429305168466470	CMakeFiles/Panel.dir/server.cpp.obj	c59b32654d465216
-2112	10379	7429305169663530	CMakeFiles/Panel.dir/Panel_autogen/mocs_compilation.cpp.obj	92fddf8c470fde2f
-2117	10659	7429305172422120	CMakeFiles/Panel.dir/mainwindow.cpp.obj	f0cec54c3c2886c8
-10661	11248	7429305178181475	Panel.exe	bd2e789524234f70
-22	444	7429306793985925	Panel_autogen/timestamp	7f5708ea63855aa3
-22	444	7429306793985925	Panel_autogen/mocs_compilation.cpp	7f5708ea63855aa3
-22	444	7429306793985925	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/timestamp	7f5708ea63855aa3
-22	444	7429306793985925	C:/Programming/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/mocs_compilation.cpp	7f5708ea63855aa3
-478	6573	7429306855214259	CMakeFiles/Panel.dir/mainwindow.cpp.obj	f0cec54c3c2886c8
-6574	7191	7429306861388443	Panel.exe	bd2e789524234f70
+1	435	7431111001979734	Panel_autogen/timestamp	cfc5ce2cfbc9427b
+1	435	7431111001979734	Panel_autogen/mocs_compilation.cpp	cfc5ce2cfbc9427b
+1	435	7431111001979734	D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/timestamp	cfc5ce2cfbc9427b
+1	435	7431111001979734	D:/Programming/C++/Work/DoorPhone/Panel/build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/Panel_autogen/mocs_compilation.cpp	cfc5ce2cfbc9427b
+446	1852	7431111016576296	CMakeFiles/Panel.dir/udpnet.cpp.obj	1b2cbe19a2ed038f
+443	2110	7431111019166648	CMakeFiles/Panel.dir/server.cpp.obj	8e63035365f8703a
+438	2117	7431111019246690	CMakeFiles/Panel.dir/main.cpp.obj	fc14e5dcc2703a58
+436	2176	7431111019832065	CMakeFiles/Panel.dir/Panel_autogen/mocs_compilation.cpp.obj	f3943fb428ea3aa9
+441	2308	7431111021126885	CMakeFiles/Panel.dir/mainwindow.cpp.obj	adb19e53b6a56aaa
+2308	2524	7431111023282180	Panel.exe	6824f01e8641240b
