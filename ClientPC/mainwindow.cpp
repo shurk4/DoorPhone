@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     // startAudio();
     startTCP();
     // startUDP();
+    ui->pushButtonAnswer->setDisabled(true);
 }
 
 MainWindow::~MainWindow()
@@ -39,15 +40,23 @@ void MainWindow::startTCP()
 {
     if(socket == nullptr)
     {
-        toLog("Try to connect to TCP server");
+        toLog("Trying connect to TCP server");
 
         socket = new QTcpSocket(this);
+        toLog("New socket");
         connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
         connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconected()));
+        connect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
+        toLog("Socket signals connected");
 
         socket->connectToHost(ipAdr, portTCP);
-        connected = true;
-        toLog("OK");
+        toLog("Connecting to host");
+        timeout = new QTimer;
+        toLog("New timer");
+        connect(timeout, &QTimer::timeout, this, &MainWindow::connectionTimeout);
+        toLog("Timer signals connected");
+        timeout->start(timeoutTime);
+        toLog("Timer started");
     }
     else
     {
@@ -67,23 +76,108 @@ void MainWindow::startUDP()
 
 void MainWindow::stopUDP()
 {
-    toLog("Stopping UDP");
-    network.socketDisconnected();
+    if(network.isOnline())
+    {
+        toLog("Stopping UDP");
+        network.socketDisconnected();
+    }
+}
+
+void MainWindow::callAnswer()
+{
+    if(ui->pushButtonAnswer->isChecked())
+    {
+        startAudio();
+        startUDP();
+        sendCommand(ANSWER);
+    }
+    else
+    {
+        stopUDP();
+        stopAudio();
+        sendCommand(END_CALL);
+        ui->pushButtonAnswer->setChecked(false);
+        ui->pushButtonAnswer->setDisabled(true);
+    }
+}
+
+void MainWindow::applyCommand(int _com)
+{
+    toLog("Apply command: " + QString::number(_com));
+    if(_com & INCOMMING_CALL)
+    {
+        ui->pushButtonAnswer->setEnabled(true);
+    }
+    if(_com & END_CALL)
+    {
+        endCall();
+        callAnswer();
+    }
+    if(_com & DISCONNECT)
+    {
+        endCall();
+    }
+}
+
+void MainWindow::sendCommand(int _com)
+{
+    QString command = "&" + QString::number(_com);
+    socket->write(command.toUtf8());
+}
+
+void MainWindow::endCall()
+{
+    ui->pushButtonAnswer->setChecked(false);
+    ui->pushButtonAnswer->setDisabled(true);
+    callAnswer();
 }
 
 void MainWindow::socketReady()
 {
     QString data = socket->readAll();
     toLog("TCP data recived: " + data);
+    if(data[0] == '&')
+    {
+        toLog("Is command");
+        applyCommand(data.midRef(1, 1).toInt());
+    }
 
+}
+
+void MainWindow::socketConnected()
+{
+    toLog("TCP connected");
+    connected = true;
 }
 
 void MainWindow::socketDisconected()
 {
-    socket->deleteLater();
+    socket->disconnect();
+    toLog("Socket signals disconnected");
+
+    delete socket;
+    toLog("Socket deleted");
     socket = nullptr;
+    toLog("Socket = nullptr");
     connected = false;
     toLog("TCP disconnected");
+    startTCP();
+}
+
+void MainWindow::connectionTimeout()
+{
+    toLog("Connection timeout signal!");
+    timeout->disconnect();
+    toLog("Timeout desconnected");
+    delete timeout;
+    toLog("Timeout deleted");
+
+    if(!connected)
+    {
+        toLog("Not connected");
+        socketDisconected();
+        startTCP();
+    }
 }
 
 void MainWindow::readInput()
@@ -217,19 +311,21 @@ void MainWindow::on_pushButtonSettings_clicked()
 
 void MainWindow::on_pushButtonAnswer_clicked()
 {
-    if(ui->pushButtonAnswer->isChecked())
-    {
-        startAudio();
-        startUDP();
-    }
-    else
-    {
-        stopUDP();
-        stopAudio();
-    }
+    callAnswer();
 }
 
 void MainWindow::on_pushButtonMute_clicked()
 {
     audioInput->setVolume(!ui->pushButtonMute->isChecked());
 }
+
+void MainWindow::on_pushButtonDoor1_clicked()
+{
+    sendCommand(DOOR_1);
+}
+
+void MainWindow::on_pushButtonDoor2_clicked()
+{
+    sendCommand(DOOR_2);
+}
+

@@ -15,9 +15,19 @@
 #include <QAudioDeviceInfo>
 #include <QAudioInput>
 #include <QAudioOutput>
+#include <QTimer>
 
 #include "udpnet.h"
 #include "settingswindow.h"
+
+enum COMMANDS{
+    INCOMMING_CALL = 1,
+    END_CALL = 2,
+    ANSWER = 4,
+    DOOR_1 = 8,
+    DOOR_2 = 16,
+    DISCONNECT = 32
+};
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -37,6 +47,8 @@ class MainWindow : public QMainWindow
     QString ipAdr;
     int portTCP;;
     int portUDP;
+    QTimer *timeout;
+    int timeoutTime = 5000;
 
     QByteArray data;
     bool connected = false;
@@ -44,10 +56,13 @@ class MainWindow : public QMainWindow
     void startTCP();
     void startUDP();
     void stopUDP();
+    void callAnswer();
 
     // TCP commands
-    void applyCommand(QString _com);
-    void sendCommand(QString _com);
+    void applyCommand(int _com);
+    void sendCommand(int _com);
+
+    void endCall();
 
     // Sound
     QAudioDeviceInfo inputDeviceInfo;
@@ -86,7 +101,9 @@ public slots:
     void applySettings();
 
     void socketReady();
+    void socketConnected();
     void socketDisconected();
+    void connectionTimeout();
 
     void readUDP(QByteArray _data);
 
@@ -100,6 +117,10 @@ private slots:
     void on_pushButtonAnswer_clicked();
 
     void on_pushButtonMute_clicked();
+
+    void on_pushButtonDoor1_clicked();
+
+    void on_pushButtonDoor2_clicked();
 
 private:
     Ui::MainWindow *ui;
