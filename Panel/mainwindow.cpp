@@ -11,9 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     prepareAudio();
     initAudio();
-    startAudio();
 
-    startNetwork();
+    startTCP();
 
     // Pins control
     initGPIO();
@@ -41,6 +40,8 @@ void MainWindow::readSettings()
     toLog("Read settings");
     QSettings settings("ShurkSoft", "Door Phone Panel");
     settings.beginGroup("settings");
+    ui->lineEditCallTimer->setText(settings.value("call timer").toString());
+
     ui->lineEditPortUdp->setText(settings.value("UDP port").toString());
     ui->lineEditPortTcp->setText(settings.value("TCP port").toString());
 
@@ -64,6 +65,7 @@ void MainWindow::writeSettins()
     toLog("Write settings");
     QSettings settings("ShurkSoft", "Door Phone Panel");
     settings.beginGroup("settings");
+    settings.setValue("call timer", ui->lineEditCallTimer->text());
     settings.setValue("UDP port", ui->lineEditPortUdp->text());
     settings.setValue("TCP port", ui->lineEditPortTcp->text());
     settings.setValue("spkVol", ui->verticalSliderSpkVol->value());
@@ -79,21 +81,33 @@ void MainWindow::toLog(QString _log)
     ui->textBrowser->append(_log);
 }
 
-void MainWindow::startNetwork()
+void MainWindow::startTCP()
 {
     toLog("");
     toLog("Starting network");
     toLog(" TCP Server");
     server.startServer(ui->lineEditPortTcp->text().toInt());
-    connect(&server, &Server::signalSendText, this, &MainWindow::reciveMessage);
+    connect(&server, &Server::signalSendText, this, &MainWindow::reciveData);
     toLog(" OK");
+}
 
+void MainWindow::startUDP()
+{
     toLog(" UDP");
     network.setPort(ui->lineEditPortUdp->text().toInt());
     network.initUdp();
     connect(&network, &UDPNet::signalData, this, &MainWindow::slotData);
     toLog(" OK");
     toLog("OK");
+}
+
+void MainWindow::stopUDP()
+{
+    if(network.isOnline())
+    {
+        toLog("Stopping UDP");
+        network.socketDisconnected();
+    }
 }
 
 void MainWindow::listInterfaces()
@@ -242,6 +256,104 @@ void MainWindow::initGPIO()
     toLog("OK");
 }
 
+void MainWindow::applyCommand(int _com)
+{
+    toLog("Apply command: " + QString::number(_com));
+    if(_com & ANSWER)
+    {
+        answer();
+    }
+    if(_com & END_CALL)
+    {
+        stopCall();
+    }
+    if(_com & DOOR_1)
+    {
+        door1();
+    }
+    if(_com & DOOR_2)
+    {
+        door2();
+    }
+}
+
+void MainWindow::sendCommand(int _com)
+{
+    server.lanSendCommand(_com);
+}
+
+void MainWindow::incommingCallStart()
+{
+    if(isIncommingCall) return;
+
+    isIncommingCall = true;
+    sendCommand(INCOMMING_CALL);
+    timer = new QTimer;
+    connect(timer, &QTimer::timeout, this, &MainWindow::incommingCallTimerShot);
+    int timerTime = ui->lineEditCallTimer->text().toInt();
+    timer->start(timerTime);
+    ui->pushButtonCall->setChecked(true);
+}
+
+void MainWindow::incommingCallStop()
+{
+    if(isIncommingCall)
+    {
+        timer->disconnect();
+        delete timer;
+        sendCommand(END_CALL);
+        isIncommingCall = false;
+        ui->pushButtonCall->setChecked(false);
+    }
+    else
+    {
+        ui->pushButtonCall->setChecked(true);
+    }
+}
+
+void MainWindow::answer()
+{
+    toLog("Answer call");
+    timer->disconnect();
+    toLog("timer disconnected");
+    delete timer;
+    toLog("Timer deleted");
+    startAudio();
+    startUDP();
+    toLog("Calling answered");
+}
+
+void MainWindow::stopCall()
+{
+    toLog("Calling end");
+    stopAudio();
+    stopUDP();
+    ui->pushButtonCall->setChecked(false);
+    isIncommingCall = false;
+}
+
+void MainWindow::door1()
+{
+
+    if(digitalRead(out1Pin) == HIGH)
+    {
+        digitalWrite(out1Pin, LOW);
+        return;
+    }
+    digitalWrite(out1Pin, HIGH);
+}
+
+void MainWindow::door2()
+{
+
+    if(digitalRead(out2Pin) == HIGH)
+    {
+        digitalWrite(out2Pin, LOW);
+        return;
+    }
+    digitalWrite(out2Pin, HIGH);
+}
+
 void MainWindow::readInput()
 {
     //Return if audio input is null
@@ -269,9 +381,19 @@ int MainWindow::applyVolumeToSample(short iSample)
     return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
 }
 
-void MainWindow::reciveMessage(QString message)
+void MainWindow::reciveMessage(QString _message)
 {
-    toLog("Message: " + message);
+    toLog("Message: " + _message);
+}
+
+void MainWindow::reciveData(QString _data)
+{
+    toLog("Recived data: " + _data);
+    if(_data[0] == '&')
+    {
+        toLog("Is command");
+        applyCommand(_data.midRef(1, _data.size() - 1).toInt());
+    }
 }
 
 void MainWindow::slotData(QByteArray _data)
@@ -288,6 +410,12 @@ void MainWindow::on_pushButtonSend_clicked()
 void MainWindow::btnStateChanged(int _pin, int _state)
 {
     ui->pushButtonCall->setChecked(_state);
+    incommingCallStart();
+}
+
+void MainWindow::incommingCallTimerShot()
+{
+    incommingCallStop();
 }
 
 void MainWindow::on_pushButton1_clicked()
@@ -302,12 +430,7 @@ void MainWindow::on_pushButton1_clicked()
 
 void MainWindow::on_pushButton2_clicked()
 {
-    if(digitalRead(out2Pin) == HIGH)
-    {
-        digitalWrite(out2Pin, LOW);
-        return;
-    }
-    digitalWrite(out2Pin, HIGH);
+    door2();
 }
 
 void MainWindow::on_verticalSliderSpkVol_valueChanged(int value)
@@ -353,13 +476,8 @@ void MainWindow::on_verticalSliderMicVol_valueChanged(int value)
     toLog("Current microphone volume: " + QString::number(audioInput->volume()));
 }
 
-void MainWindow::on_lineEditVol_editingFinished()
+void MainWindow::on_pushButtonCall_clicked()
 {
-    int vol = ui->lineEditVol->text().toInt();
-    double volD = (double)vol / 10;
-
-    std::cout << volD;
-    toLog("volD: " + QString::number(volD));
-    audioInput->setVolume(volD);
-    toLog("Current microphone volume: " + QString::number(audioInput->volume()));
+    incommingCallStart();
 }
+
