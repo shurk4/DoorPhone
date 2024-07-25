@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    readSettings();
 
     inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
     outputDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
@@ -17,12 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     outputDevice = 0;
 
     initializeAudio();
-    startAudio();
-
-    network.setPort(port);
-    network.initUdp();
-
-    connect(&network, &UDPNet::signalData, this, &MainWindow::slotData);
+    // startAudio();
+    startTCP();
+    // startUDP();
 }
 
 MainWindow::~MainWindow()
@@ -30,77 +28,82 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::message(QString msg)
+void MainWindow::toLog(QString _log)
 {
-    delete ui;
+    qDebug() << _log;
+    ui->textBrowser->append(_log);
+}
+
+// Network
+void MainWindow::startTCP()
+{
+    if(socket == nullptr)
+    {
+        toLog("Try to connect to TCP server");
+
+        socket = new QTcpSocket(this);
+        connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
+        connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconected()));
+
+        socket->connectToHost(ipAdr, portTCP);
+        connected = true;
+        toLog("OK");
+    }
+    else
+    {
+        toLog("TCP alredy connected!");
+    }
+}
+
+void MainWindow::startUDP()
+{
+    toLog("Starting UDP network");
+    network.setPort(portUDP);
+    network.initUdp();
+
+    connect(&network, &UDPNet::signalData, this, &MainWindow::readUDP);
+    toLog("OK");
+}
+
+void MainWindow::stopUDP()
+{
+    toLog("Stopping UDP");
+    network.socketDisconnected();
 }
 
 void MainWindow::socketReady()
 {
-    ui->textBrowser->append(socket->readAll());
+    QString data = socket->readAll();
+    toLog("TCP data recived: " + data);
+
 }
 
 void MainWindow::socketDisconected()
 {
     socket->deleteLater();
     socket = nullptr;
-    message("Disconnected");
     connected = false;
-}
-
-void MainWindow::on_pushButtonConnect_clicked()
-{
-    if(socket == nullptr)
-    {
-        message("Try to connect");
-        QString ip = ui->lineEditIp->text();
-        int port = ui->lineEditPort->text().toInt();
-
-        socket = new QTcpSocket(this);
-        connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
-        connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconected()));
-
-        socket->connectToHost(ip, port);
-        connected = true;
-    }
-    else
-    {
-        message("Alredy connected!");
-    }
-}
-
-void MainWindow::on_pushButtonDisconnect_clicked()
-{
-    if(socket->isValid())
-    {
-        socket->disconnect();
-    }
-    socketDisconected();
-}
-
-void MainWindow::on_pushButtonSend_clicked()
-{
-    socket->write(ui->lineEditMessage->text().toUtf8());
-    ui->lineEditMessage->clear();
+    toLog("TCP disconnected");
 }
 
 void MainWindow::readInput()
 {
-    // //Return if audio input is null
     if(!audioInput)
         return;
 
     network.sendData(inputDevice->readAll());
 }
 
-int MainWindow::applyVolumeToSample(short iSample)
+void MainWindow::readUDP(QByteArray _data)
 {
-    //Calculate volume, Volume limited to  max 35535 and min -35535
-    return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
+    outputDevice->write(_data);
 }
+
+// Audio
 
 void MainWindow::initializeAudio()
 {
+    toLog("Initialize audio format");
     audioFormat.setSampleRate(8000); //set frequency to 8000
     audioFormat.setChannelCount(1); //set channels to mono
     audioFormat.setSampleSize(8); //set sample size to 16 bit
@@ -124,26 +127,31 @@ void MainWindow::initializeAudio()
     }
     createAudioInput();
     createAudioOutput();
-}
-
-void MainWindow::createAudioOutput()
-{
-    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
+    toLog("OK");
 }
 
 void MainWindow::createAudioInput()
 {
+    toLog("Create audio input");
     if (inputDevice != 0) {
         disconnect(inputDevice, 0, this, 0);
         inputDevice = 0;
     }
 
     audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
-    // audioInput.
+    toLog("OK");
+}
+
+void MainWindow::createAudioOutput()
+{
+    toLog(" Create audio output");
+    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
+    toLog(" OK");
 }
 
 void MainWindow::startAudio()
 {
+    toLog("Audio turn ON");
     //Audio output device
     outputDevice = audioOutput->start();
         //Audio input device
@@ -151,9 +159,77 @@ void MainWindow::startAudio()
     //connect readyRead signal to readMre slot.
     //Call readmore when audio samples fill in inputbuffer
     connect(inputDevice, SIGNAL(readyRead()), SLOT(readInput()));
+    toLog("OK");
 }
 
-void MainWindow::slotData(QByteArray _data)
+void MainWindow::stopAudio()
 {
-    outputDevice->write(_data);
+    audioInput->stop();
+    audioOutput->stop();
+}
+
+int MainWindow::applyVolumeToSample(short iSample)
+{
+    //Calculate volume, Volume limited to  max 35535 and min -35535
+    return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
+}
+
+// Settings
+
+void MainWindow::readSettings()
+{
+    toLog("Read settings");
+    QSettings settings("ShurkSoft", "Door phone client");
+    settings.beginGroup("settings");
+    ipAdr = settings.value("server IP").toString();
+    toLog("IP: " + ipAdr);
+    portTCP = settings.value("TCP port").toInt();
+    toLog("Port TCP: " + QString::number(portTCP));
+    portUDP = settings.value("UDP port").toInt();
+    toLog("Port UDP: " + QString::number(portUDP));
+    settings.endGroup();
+    toLog("OK");
+}
+
+void MainWindow::applySettings()
+{
+    toLog("Settings window is closed");
+    readSettings();
+}
+
+void MainWindow::on_pushButtonSend_clicked()
+{
+    socket->write(ui->lineEditMessage->text().toUtf8());
+    ui->lineEditMessage->clear();
+}
+
+void MainWindow::on_lineEditMessage_returnPressed()
+{
+    on_pushButtonSend_clicked();
+}
+
+void MainWindow::on_pushButtonSettings_clicked()
+{
+    SettingsWindow *sw = new SettingsWindow;
+    sw->show();
+    connect(sw, &SettingsWindow::settingsChanged, this, &MainWindow::applySettings);
+}
+
+void MainWindow::on_pushButtonAnswer_clicked()
+{
+    if(ui->pushButtonAnswer->isChecked())
+    {
+        startAudio();
+        startUDP();
+    }
+    else
+    {
+        stopUDP();
+        stopAudio();
+    }
+}
+
+void MainWindow::on_pushButtonMute_clicked()
+{
+    audioInput->setVolume(!ui->pushButtonMute->isChecked());
 }
