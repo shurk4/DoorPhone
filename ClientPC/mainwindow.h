@@ -1,3 +1,11 @@
+/**
+            Сделать в настройках список интерфейсов(остановился на этом, возможно не понадобится т.к. брудкаст будет по IP)
+            Сделать в настройках список адресов
+Добавить фукционал в главное окно
+Связать кнопки управления с сервером
+Добавить вызов с сервера
+**/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -9,6 +17,7 @@
 #include <QAudioOutput>
 
 #include "udpnet.h"
+#include "settingswindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -20,13 +29,27 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+    void toLog(QString _log);
+
+    // Network
     QTcpSocket* socket = nullptr;
     UDPNet network;
-    int port = 2024;
+    QString ipAdr;
+    int portTCP;;
+    int portUDP;
 
     QByteArray data;
     bool connected = false;
 
+    void startTCP();
+    void startUDP();
+    void stopUDP();
+
+    // TCP commands
+    void applyCommand(QString _com);
+    void sendCommand(QString _com);
+
+    // Sound
     QAudioDeviceInfo inputDeviceInfo;
     QAudioDeviceInfo outputDeviceInfo;
     QAudioFormat audioFormat;
@@ -37,19 +60,18 @@ class MainWindow : public QMainWindow
     QByteArray buffer;
     int volume = 100;
 
-    int volMin = 0;
-    int raznMin = 0;
-    int volMax = 0;
-    int raznMax = 0;
-
     void initializeAudio();
     void createAudioInput();
     void createAudioOutput();
 
+    void startAudio();
+    void stopAudio();
+
     int applyVolumeToSample(short iSample);
 
-    void startAudio();
-    void playBuffer(QByteArray &buffer);
+    // Settings
+    void readSettings();
+    void writeSettings();
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -61,17 +83,23 @@ private slots:
     void readInput();
 
 public slots:
+    void applySettings();
+
     void socketReady();
     void socketDisconected();
 
-    void slotData(QByteArray _data);
+    void readUDP(QByteArray _data);
 
 private slots:
-    void on_pushButtonConnect_clicked();
-
-    void on_pushButtonDisconnect_clicked();
-
     void on_pushButtonSend_clicked();
+
+    void on_lineEditMessage_returnPressed();
+
+    void on_pushButtonSettings_clicked();
+
+    void on_pushButtonAnswer_clicked();
+
+    void on_pushButtonMute_clicked();
 
 private:
     Ui::MainWindow *ui;
