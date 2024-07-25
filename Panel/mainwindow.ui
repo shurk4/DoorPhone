@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>841</width>
-    <height>451</height>
+    <width>480</width>
+    <height>475</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,9 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLineEdit" name="lineEditVol"/>
+      </item>
       <item>
        <widget class="QLabel" name="label_3">
         <property name="sizePolicy">
@@ -129,9 +132,9 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="label_6">
+         <widget class="QLabel" name="label_7">
           <property name="text">
-           <string>mic</string>
+           <string>spk</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -139,15 +142,34 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="verticalSliderSpcVol">
+         <widget class="QSlider" name="verticalSliderSpkVol">
+          <property name="minimum">
+           <number>1</number>
+          </property>
           <property name="maximum">
-           <number>100</number>
+           <number>10</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="pageStep">
+           <number>1</number>
           </property>
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
           <property name="tickPosition">
            <enum>QSlider::TicksBothSides</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelSpkVol">
+          <property name="text">
+           <string>00</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -159,9 +181,9 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="label_7">
+         <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>spc</string>
+           <string>mic</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -171,13 +193,29 @@
         <item>
          <widget class="QSlider" name="verticalSliderMicVol">
           <property name="maximum">
-           <number>100</number>
+           <number>10</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="pageStep">
+           <number>1</number>
           </property>
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
           <property name="tickPosition">
            <enum>QSlider::TicksBothSides</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelMicVol">
+          <property name="text">
+           <string>00</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -190,6 +228,21 @@
        <widget class="QListWidget" name="listWidgetClients"/>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_8">
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>!!! HAVE PROBLEM WITH VOLUME CHANGE FOR SPEAKER !!!</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QTextBrowser" name="textBrowser"/>
@@ -263,7 +316,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>841</width>
+     <width>480</width>
      <height>19</height>
     </rect>
    </property>

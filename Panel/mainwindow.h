@@ -47,6 +47,12 @@ private slots:
 
     void on_pushButton2_clicked();
 
+    void on_verticalSliderSpkVol_valueChanged(int value);
+
+    void on_verticalSliderMicVol_valueChanged(int value);
+
+    void on_lineEditVol_editingFinished();
+
 private:
     Ui::MainWindow *ui;
 
