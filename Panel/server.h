@@ -28,8 +28,7 @@ public:
     void log(const QString msg);
 
     void lanSendText(const QString text);
-    void lanSendAction(const QString object, const QString action);
-    void lanSendBytes(const QByteArray &_sampl);
+    void lanSendCommand(int _com);
 
 public slots:
     // Запуск сервера

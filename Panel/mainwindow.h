@@ -7,10 +7,20 @@
 #include <QAudioInput>
 #include <QAudioOutput>
 #include <QSettings>
+#include <QTimer>
 
 #include "server.h"
 #include "udpnet.h"
 #include "pins.h"
+
+enum COMMANDS{
+    INCOMMING_CALL = 1,
+    END_CALL = 2,
+    ANSWER = 4,
+    DOOR_1 = 8,
+    DOOR_2 = 16,
+    DISCONNECT = 32
+};
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,10 +45,12 @@ signals:
 
 public slots:
     void btnStateChanged(int _pin, int _state);
+    void incommingCallTimerShot();
 
 private slots:
     void readInput();
-    void reciveMessage(QString message);
+    void reciveMessage(QString _message);
+    void reciveData(QString _data);
     void slotData(QByteArray _data); // Play sound from udp
 
     void on_pushButtonSend_clicked();
@@ -51,7 +63,7 @@ private slots:
 
     void on_verticalSliderMicVol_valueChanged(int value);
 
-    void on_lineEditVol_editingFinished();
+    void on_pushButtonCall_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -66,7 +78,9 @@ private:
     Server server;
     UDPNet network;
 
-    void startNetwork();
+    void startTCP();
+    void startUDP();
+    void stopUDP();
     void listInterfaces();
     void listLocalAdresses();
 
@@ -98,5 +112,17 @@ private:
     Pins buttons;
     QThread lookupSensorsThread;
     void initGPIO();
+
+    // Control
+    QTimer *timer;
+    bool isIncommingCall = false;
+    void applyCommand(int _com);
+    void sendCommand(int _com);
+    void incommingCallStart();
+    void incommingCallStop();
+    void answer();
+    void stopCall();
+    void door1();
+    void door2();
 };
 #endif // MAINWINDOW_H

@@ -81,12 +81,12 @@ void UDPNet::readUdp()
 
 void UDPNet::socketDisconnected()
 {
-    udpSocket->disconnectFromHost();
-    udpSocket->deleteLater();
-    udpSocket = nullptr;
-    toLog("Socket disconnected");
-
-    online = false;
+    if(udpSocket != nullptr)
+    {
+        delete udpSocket;
+        toLog("UDP socket disconnected");
+        online = false;
+    }
 }
 
 void UDPNet::printLocalIPs()

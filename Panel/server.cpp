@@ -54,18 +54,10 @@ void Server::lanSendText(const QString text)
     }
 }
 
-void Server::lanSendAction(const QString object, const QString action)
+void Server::lanSendCommand(int _com)
 {
-    QString msg = "action:" + object + ":" + action;
+    QString msg = "&" + QString::number(_com);
     lanSendText(msg);
-}
-
-void Server::lanSendBytes(const QByteArray &_sampl)
-{
-    for(const auto &socket : sockets)
-    {
-        socket->write(_sampl);
-    }
 }
 
 void Server::startServer(uint port)
