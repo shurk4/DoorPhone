@@ -16,6 +16,7 @@
 #include <QAudioInput>
 #include <QAudioOutput>
 #include <QTimer>
+#include <QFile>
 
 #include "udpnet.h"
 #include "settingswindow.h"
@@ -26,7 +27,11 @@ enum COMMANDS{
     ANSWER = 4,
     DOOR_1 = 8,
     DOOR_2 = 16,
-    DISCONNECT = 32
+    DISCONNECT = 32,
+    DOOR_1_IS_OPEN = 64,
+    DOOR_2_IS_OPEN = 128,
+    DOOR_1_IS_CLOSED = 256,
+    DOOR_2_IS_CLOSED = 512
 };
 
 QT_BEGIN_NAMESPACE
@@ -40,6 +45,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     void toLog(QString _log);
+    void setStyle();
 
     // Network
     QTcpSocket* socket = nullptr;

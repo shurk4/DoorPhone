@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
-    <height>379</height>
+    <width>479</width>
+    <height>316</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Домофон</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/ico/img/50_call_green_h.png</normaloff>:/ico/img/50_call_green_h.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -25,7 +29,7 @@
      <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>5</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
      <number>5</number>
@@ -41,24 +45,28 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="spacing">
-         <number>0</number>
+         <number>5</number>
         </property>
         <item>
          <widget class="QPushButton" name="pushButtonAnswer">
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>50</width>
             <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>50</width>
-            <height>16777215</height>
+            <height>50</height>
            </size>
           </property>
+          <property name="styleSheet">
+           <string notr="true">
+</string>
+          </property>
           <property name="text">
-           <string>Ответить</string>
+           <string/>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -69,18 +77,18 @@
          <widget class="QPushButton" name="pushButtonMute">
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>50</width>
             <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>50</width>
-            <height>16777215</height>
+            <height>50</height>
            </size>
           </property>
           <property name="text">
-           <string>MUTE</string>
+           <string/>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -91,18 +99,21 @@
          <widget class="QPushButton" name="pushButtonDoor1">
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>50</width>
             <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>50</width>
-            <height>16777215</height>
+            <height>50</height>
            </size>
           </property>
           <property name="text">
-           <string>Дверь 1</string>
+           <string/>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -110,37 +121,21 @@
          <widget class="QPushButton" name="pushButtonDoor2">
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>50</width>
             <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>50</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Дверь 2</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonToTray">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
             <height>50</height>
            </size>
           </property>
-          <property name="maximumSize">
-           <size>
-            <width>50</width>
-            <height>16777215</height>
-           </size>
-          </property>
           <property name="text">
-           <string>Свернуть</string>
+           <string/>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -158,14 +153,45 @@
          </spacer>
         </item>
         <item>
+         <widget class="QPushButton" name="pushButtonSettings">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <property name="spacing">
            <number>0</number>
           </property>
           <item>
            <widget class="QLabel" name="labelRecive">
+            <property name="minimumSize">
+             <size>
+              <width>23</width>
+              <height>23</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>23</width>
+              <height>23</height>
+             </size>
+            </property>
             <property name="text">
-             <string>&lt;&lt;</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -174,8 +200,20 @@
           </item>
           <item>
            <widget class="QLabel" name="labelSend">
+            <property name="minimumSize">
+             <size>
+              <width>23</width>
+              <height>23</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>23</width>
+              <height>23</height>
+             </size>
+            </property>
             <property name="text">
-             <string>&gt;&gt;</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -184,25 +222,6 @@
           </item>
          </layout>
         </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonSettings">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>50</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Settings</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>
@@ -210,6 +229,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

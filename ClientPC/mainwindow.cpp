@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setStyle();
     readSettings();
 
     inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
@@ -33,6 +34,16 @@ void MainWindow::toLog(QString _log)
 {
     qDebug() << _log;
     ui->textBrowser->append(_log);
+}
+
+void MainWindow::setStyle()
+{
+    toLog("Set style");
+    QFile styleF;
+    styleF.setFileName("://qss/mainStyle.css");
+    styleF.open(QFile::ReadOnly);
+    QString qssStr = styleF.readAll();
+    this->setStyleSheet(qssStr);
 }
 
 // Network
@@ -117,6 +128,14 @@ void MainWindow::applyCommand(int _com)
     {
         endCall();
     }
+    if(_com & DOOR_1_IS_CLOSED)
+    {
+        ui->pushButtonDoor1->setChecked(false);
+    }
+    if(_com & DOOR_2_IS_CLOSED)
+    {
+        ui->pushButtonDoor2->setChecked(false);
+    }
 }
 
 void MainWindow::sendCommand(int _com)
@@ -139,7 +158,7 @@ void MainWindow::socketReady()
     if(data[0] == '&')
     {
         toLog("Is command");
-        applyCommand(data.midRef(1, 1).toInt());
+        applyCommand(data.midRef(1, data.size() - 1).toInt());
     }
 
 }
