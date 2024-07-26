@@ -41,6 +41,7 @@ else()
         add_executable(ClientPC
             ${PROJECT_SOURCES}
             settingswindow.h settingswindow.cpp settingswindow.ui
+            res.qrc
         )
     endif()
 endif()

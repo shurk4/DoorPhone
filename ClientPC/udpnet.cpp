@@ -1,4 +1,5 @@
 #include "udpnet.h"
+#include "mainwindow.h"
 
 void UDPNet::toLog(QString _log)
 {
@@ -92,6 +93,8 @@ void UDPNet::socketDisconnected()
         // udpSocket->deleteLater();
         // udpSocket = nullptr;
         toLog("Socket disconnected");
+        QString com = "&" + QString::number(DISCONNECT);
+        emit signalData(com.toUtf8());
 
         online = false;
     }

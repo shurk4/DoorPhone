@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>415</width>
-    <height>311</height>
+    <width>505</width>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,15 +15,48 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QTextBrowser" name="textBrowser"/>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QPushButton" name="pushButtonAnswer">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>Ответить</string>
           </property>
@@ -34,6 +67,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonMute">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>MUTE</string>
           </property>
@@ -44,6 +89,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonDoor1">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>Дверь 1</string>
           </property>
@@ -51,6 +108,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonDoor2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>Дверь 2</string>
           </property>
@@ -58,6 +127,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonToTray">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>Свернуть</string>
           </property>
@@ -78,6 +159,9 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QLabel" name="labelRecive">
             <property name="text">
@@ -102,26 +186,24 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonSettings">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>Settings</string>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLineEdit" name="lineEditMessage"/>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonSend">
-        <property name="text">
-         <string>Send</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </item>
