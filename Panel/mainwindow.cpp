@@ -341,6 +341,7 @@ void MainWindow::door1()
         return;
     }
     digitalWrite(out1Pin, HIGH);
+    QTimer::singleShot(3000, this, &MainWindow::door1isClosed);
 }
 
 void MainWindow::door2()
@@ -352,6 +353,19 @@ void MainWindow::door2()
         return;
     }
     digitalWrite(out2Pin, HIGH);
+    QTimer::singleShot(3000, this, &MainWindow::door2isClosed);
+}
+
+void MainWindow::door1isClosed()
+{
+    sendCommand(DOOR_1_IS_CLOSED);
+    door1();
+}
+
+void MainWindow::door2isClosed()
+{
+    sendCommand(DOOR_2_IS_CLOSED);
+    door2();
 }
 
 void MainWindow::readInput()
