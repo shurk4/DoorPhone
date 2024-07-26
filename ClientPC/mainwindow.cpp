@@ -60,7 +60,7 @@ void MainWindow::startTCP()
     }
     else
     {
-        toLog("TCP alredy connected!");
+        toLog("TCP is busy!");
     }
 }
 
@@ -289,17 +289,6 @@ void MainWindow::applySettings()
 {
     toLog("Settings window is closed");
     readSettings();
-}
-
-void MainWindow::on_pushButtonSend_clicked()
-{
-    socket->write(ui->lineEditMessage->text().toUtf8());
-    ui->lineEditMessage->clear();
-}
-
-void MainWindow::on_lineEditMessage_returnPressed()
-{
-    on_pushButtonSend_clicked();
 }
 
 void MainWindow::on_pushButtonSettings_clicked()

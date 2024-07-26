@@ -108,10 +108,6 @@ public slots:
     void readUDP(QByteArray _data);
 
 private slots:
-    void on_pushButtonSend_clicked();
-
-    void on_lineEditMessage_returnPressed();
-
     void on_pushButtonSettings_clicked();
 
     void on_pushButtonAnswer_clicked();
