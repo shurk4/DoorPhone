@@ -31,6 +31,11 @@ set(PROJECT_SOURCES
 
         pins.h
         pins.cpp
+
+        callplayer.h
+        callplayer.cpp
+
+        src.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
