@@ -1,9 +1,26 @@
 /**
-            Сделать в настройках список интерфейсов(остановился на этом, возможно не понадобится т.к. брудкаст будет по IP)
-            Сделать в настройках список адресов
-Добавить фукционал в главное окно
-Связать кнопки управления с сервером
-Добавить вызов с сервера
+    На клиенте:
+        Сделать обработку вида кнопок при разных условиях
+        Сделать сворачивание в трей
+        Сделать всплывающее уведомление при вызове
+        Сделать автоматическое добавление в автозагрузку
+        Добавить режим запуска приложения при автозагрузке трей/окно
+
+    На сервере:
+        В настройках добавить выбор вызывного сигнала
+
+    Общее:
+        Сделать отправку аудиосигнала только в UDP группу
+
+_______________________________________________________________________________________________
+
+    Сделано:
+        На клиенте:
+            Добавлена проверка на наличия подключения перед отправкой команды +
+            Иногда вылетает при отелючении сервера +
+
+        На сервере:
+            Сделать обработку отключения клиентов(Иногда вылетает при отключении клиента)
 **/
 
 #ifndef MAINWINDOW_H
@@ -17,6 +34,12 @@
 #include <QAudioOutput>
 #include <QTimer>
 #include <QFile>
+
+#include <QCloseEvent>
+#include <QSystemTrayIcon>
+#include <QAction>
+#include <QMenu>
+#include <QStyle>
 
 #include "udpnet.h"
 #include "settingswindow.h"
@@ -88,11 +111,17 @@ class MainWindow : public QMainWindow
     void startAudio();
     void stopAudio();
 
-    int applyVolumeToSample(short iSample);
-
     // Settings
     void readSettings();
     void writeSettings();
+
+    // Tray
+    QSystemTrayIcon *trayIcon;
+    void createTrayIcon();
+    void showHideWindow();
+
+protected:
+    void closeEvent(QCloseEvent *_event);
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -102,6 +131,8 @@ public:
 
 private slots:
     void readInput();
+
+    void iconActivated(QSystemTrayIcon::ActivationReason _reason);
 
 public slots:
     void applySettings();

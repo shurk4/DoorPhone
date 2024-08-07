@@ -1,7 +1,7 @@
 /** Стили домофона **/
 #MainWindow QPushButton{
     border: none;
-    align-self: center;
+/*    align-self: center;*/
 }
 
 #pushButtonAnswer
@@ -9,9 +9,19 @@
     background-image: url(":/ico/img/50_call_yellow.png");
 }
 
+#pushButtonAnswer:hover
+{
+    background-image: url(":/ico/img/50_call_yellow_h.png");
+}
+
 #pushButtonAnswer:disabled
 {
     background-image: url(":/ico/img/50_call_grey.png");
+}
+
+#pushButtonAnswer:disabled:hover
+{
+    background-image: url(":/ico/img/50_call_grey_h.png");
 }
 
 #pushButtonAnswer:checked
@@ -19,10 +29,12 @@
     background-image: url(":/ico/img/50_call_green.png");
 }
 
-#pushButtonAnswer:hover
+#pushButtonAnswer:checked:hover
 {
-    background-image: url(":/ico/img/50_call_grey_h.png");
+    background-image: url(":/ico/img/50_call_green_h.png");
 }
+
+
 
 #pushButtonDoor1
 {
@@ -44,6 +56,8 @@
     background-image: url(":/ico/img/50_door_green_1h.png");
 }
 
+
+
 #pushButtonDoor2
 {
     background-image: url(":/ico/img/50_door_grey_2.png");
@@ -64,25 +78,39 @@
     background-image: url(":/ico/img/50_door_green_2h.png");
 }
 
+
+
 #pushButtonMute
+{
+    background-image: url(":/ico/img/50_spk_green.png");
+}
+
+#pushButtonMute:hover
+{
+    background-image: url(":/ico/img/50_spk_green_h.png");
+}
+
+#pushButtonMute:disabled
 {
     background-image: url(":/ico/img/50_spk_grey.png");
 }
 
-#pushButtonMute:hover
+#pushButtonMute:disabled:hover
 {
     background-image: url(":/ico/img/50_spk_grey_h.png");
 }
 
 #pushButtonMute:checked
 {
-    background-image: url(":/ico/img/50_spk_grey_X.png");
+    background-image: url(":/ico/img/50_spk_green_X.png");
 }
 
 #pushButtonMute:checked:hover
 {
-    background-image: url(":/ico/img/50_spk_grey_Xh.png");
+    background-image: url(":/ico/img/50_spk_green_Xh.png");
 }
+
+
 
 #pushButtonSettings
 {
