@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QTimer>
 
 class Server : public QTcpServer
 {
@@ -17,6 +18,9 @@ class Server : public QTcpServer
 //    QTcpSocket* socket = nullptr;
     QVector<QTcpSocket*> sockets;
     QByteArray data;
+
+    void startCheckSocketsTimer();
+    QTimer *timer;
 
 public:
     Server();
@@ -30,7 +34,10 @@ public:
     void lanSendText(const QString text);
     void lanSendCommand(int _com);
 
+    QStringList getClientList();
+
 public slots:
+    void checkSockets();
     // Запуск сервера
     void startServer(const uint port);
     // Обработка входящих соединений
@@ -44,6 +51,8 @@ public slots:
 signals:
     void signalSendText(const QString);
     void signalSendBytes(QByteArray);
+
+    void clientsListChanged();
 };
 
 #endif // SERVER_H

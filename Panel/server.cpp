@@ -1,5 +1,31 @@
 #include "server.h"
 
+void Server::checkSockets()
+{
+    qDebug() << "Check sockets";
+    if(!sockets.empty())
+    {
+        for(auto i = 0; i < sockets.size(); i++)
+        {
+            if(!sockets[i]->isValid())
+            {
+                qDebug() << "Socket: " << sockets[i]->socketDescriptor() << " not valid.";
+                sockets[i]->deleteLater();
+                sockets.erase(sockets.begin() + i);
+                i--;
+                qDebug() << "Deleted";
+            }
+        }
+    }
+
+    startCheckSocketsTimer();
+}
+
+void Server::startCheckSocketsTimer()
+{
+    QTimer::singleShot(3000, this, &Server::checkSockets);
+}
+
 Server::Server()
 {
     sockets.clear();
@@ -60,6 +86,19 @@ void Server::lanSendCommand(int _com)
     lanSendText(msg);
 }
 
+QStringList Server::getClientList()
+{
+    qDebug() << "Get client list";
+    QStringList clientsAdresses;
+    for(int i = 0; i < sockets.size(); i++)
+    {
+        QString temp = sockets[i]->peerAddress().toString();
+        clientsAdresses.push_back(temp);
+
+    }
+    return clientsAdresses;
+}
+
 void Server::startServer(uint port)
 {
     if (this->listen(QHostAddress::Any, port))
@@ -87,11 +126,13 @@ void Server::incomingConnection(qintptr socketDescriptor)
     log("Incomming connection estabilished with ID: " + QString::number(socketDescriptor));
     QString toClient = "You are connect to test server with ID: " + QString::number(socketDescriptor);
     socket->write(toClient.toUtf8());
-    log("Client: " + QString::number(socketDescriptor) + " connected");
+    log("Client: " + QString::number(socketDescriptor) + " connected. IP: " + socket->peerAddress().toString());
 
     sockets.push_back(socket);
 
     log("Hello message sended to client.");
+    emit clientsListChanged();
+    checkSockets();
 }
 
 void Server::socketReady()
@@ -113,7 +154,8 @@ void Server::socketDisconected()
             log(QString::number(sockets[i]->socketDescriptor()) + ": is disconected");
             sockets[i]->deleteLater();
             sockets.erase(sockets.begin() + i);
-            return;
+            break;
         }
     }
+    emit clientsListChanged();
 }
