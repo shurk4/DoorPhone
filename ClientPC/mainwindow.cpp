@@ -23,11 +23,46 @@ MainWindow::MainWindow(QWidget *parent)
     startTCP();
     // startUDP();
     ui->pushButtonAnswer->setDisabled(true);
+    ui->pushButtonMute->setDisabled(true);
+
+    createTrayIcon();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+/* Метод, который обрабатывает событие закрытия окна приложения
+ * */
+void MainWindow::closeEvent(QCloseEvent * event)
+{
+    /* Если окно видимо и чекбокс отмечен, то завершение приложения
+     * игнорируется, а окно просто скрывается, что сопровождается
+     * соответствующим всплывающим сообщением
+     */
+    if(this->isVisible()){
+        event->ignore();
+        this->hide();
+        QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(QSystemTrayIcon::Information);
+
+        trayIcon->showMessage("Tray Program",
+                              ("Приложение свернуто в трей. Для того чтобы, "
+                               "развернуть окно приложения, щелкните по иконке приложения в трее"),
+                              icon,
+                              2000);
+    }
+}
+/* Метод, который обрабатывает нажатие на иконку приложения в трее
+ * */
+void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason){
+    case QSystemTrayIcon::Trigger:
+        showHideWindow();
+        break;
+    default:
+        break;
+    }
 }
 
 void MainWindow::toLog(QString _log)
@@ -101,6 +136,7 @@ void MainWindow::callAnswer()
         startAudio();
         startUDP();
         sendCommand(ANSWER);
+        ui->pushButtonMute->setEnabled(true);
     }
     else
     {
@@ -109,6 +145,8 @@ void MainWindow::callAnswer()
         sendCommand(END_CALL);
         ui->pushButtonAnswer->setChecked(false);
         ui->pushButtonAnswer->setDisabled(true);
+        ui->pushButtonMute->setDisabled(true);
+        showHideWindow();
     }
 }
 
@@ -117,12 +155,15 @@ void MainWindow::applyCommand(int _com)
     toLog("Apply command: " + QString::number(_com));
     if(_com & INCOMMING_CALL)
     {
+        if(!this->isVisible())
+        {
+            showHideWindow();
+        }
         ui->pushButtonAnswer->setEnabled(true);
     }
     if(_com & END_CALL)
     {
         endCall();
-        callAnswer();
     }
     if(_com & DISCONNECT)
     {
@@ -140,8 +181,11 @@ void MainWindow::applyCommand(int _com)
 
 void MainWindow::sendCommand(int _com)
 {
-    QString command = "&" + QString::number(_com);
-    socket->write(command.toUtf8());
+    if(socket->isWritable())
+    {
+        QString command = "&" + QString::number(_com);
+        socket->write(command.toUtf8());
+    }
 }
 
 void MainWindow::endCall()
@@ -171,7 +215,9 @@ void MainWindow::socketConnected()
 
 void MainWindow::socketDisconected()
 {
-    socket->disconnect();
+    toLog("Socket disconnected");
+    socket->disconnectFromHost();
+
     toLog("Socket signals disconnected");
 
     delete socket;
@@ -281,12 +327,6 @@ void MainWindow::stopAudio()
     audioOutput->stop();
 }
 
-int MainWindow::applyVolumeToSample(short iSample)
-{
-    //Calculate volume, Volume limited to  max 35535 and min -35535
-    return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
-}
-
 // Settings
 
 void MainWindow::readSettings()
@@ -302,6 +342,53 @@ void MainWindow::readSettings()
     toLog("Port UDP: " + QString::number(portUDP));
     settings.endGroup();
     toLog("OK");
+}
+
+void MainWindow::createTrayIcon()
+{
+    /* Инициализируем иконку трея, устанавливаем иконку из набора системных иконок,
+     * а также задаем всплывающую подсказку
+     * */
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setIcon(this->style()->standardIcon(QStyle::SP_ComputerIcon));
+    trayIcon->setToolTip("Tray Program" "\n"
+                         "Работа со сворачиванием программы трей");
+    /* После чего создаем контекстное меню из двух пунктов*/
+    QMenu * menu = new QMenu(this);
+    QAction * viewWindow = new QAction("Развернуть окно", this);
+    QAction * quitAction = new QAction("Выход", this);
+
+    /* подключаем сигналы нажатий на пункты меню к соответсвующим слотам.
+     * Первый пункт меню разворачивает приложение из трея,
+     * а второй пункт меню завершает приложение
+     * */
+    connect(viewWindow, SIGNAL(triggered()), this, SLOT(show()));
+    connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
+
+    menu->addAction(viewWindow);
+    menu->addAction(quitAction);
+
+    /* Устанавливаем контекстное меню на иконку
+     * и показываем иконку приложения в трее
+     * */
+    trayIcon->setContextMenu(menu);
+    // trayIcon.s
+    trayIcon->show();
+
+    /* Также подключаем сигнал нажатия на иконку к обработчику
+     * данного нажатия
+     * */
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+}
+
+void MainWindow::showHideWindow()
+{
+    if(!this->isVisible()){
+        this->show();
+    } else {
+        this->hide();
+    }
 }
 
 void MainWindow::applySettings()
