@@ -26,6 +26,14 @@ MainWindow::MainWindow(QWidget *parent)
     // Load UI
     listInterfaces();
     listLocalAdresses();
+
+
+    connect(this, &MainWindow::callMusicStopSignal, &callPlayer, &CallPlayer::stop);
+    connect(this, &MainWindow::callMusicStartSignal, &callPlayer, &CallPlayer::start);
+    connect(&callPlayerThread, &QThread::started, &callPlayer, &CallPlayer::run);
+
+    callPlayer.moveToThread(&callPlayerThread);
+    callPlayerThread.start();
 }
 
 MainWindow::~MainWindow()
@@ -286,6 +294,7 @@ void MainWindow::incommingCallStart()
 {
     if(isIncommingCall) return;
 
+    callMusicStart();
     isIncommingCall = true;
     sendCommand(INCOMMING_CALL);
     timer = new QTimer;
@@ -304,6 +313,7 @@ void MainWindow::incommingCallStop()
         sendCommand(END_CALL);
         isIncommingCall = false;
         ui->pushButtonCall->setChecked(false);
+        callMusicStop();
     }
     else
     {
@@ -393,6 +403,17 @@ int MainWindow::applyVolumeToSample(short iSample)
 {
     //Calculate volume, Volume limited to  max 35535 and min -35535
     return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
+}
+
+void MainWindow::callMusicStart()
+{
+    callPlayer.setTrackIndex(5);
+    emit callMusicStartSignal();
+}
+
+void MainWindow::callMusicStop()
+{
+    emit callMusicStopSignal();
 }
 
 void MainWindow::reciveMessage(QString _message)

@@ -8,10 +8,12 @@
 #include <QAudioOutput>
 #include <QSettings>
 #include <QTimer>
+#include <QMediaPlayer>
 
 #include "server.h"
 #include "udpnet.h"
 #include "pins.h"
+#include "callplayer.h"
 
 enum COMMANDS{
     INCOMMING_CALL = 1,
@@ -46,6 +48,9 @@ public:
 
 signals:
     void stopPins();
+
+    void callMusicStartSignal();
+    void callMusicStopSignal();
 
 public slots:
     void btnStateChanged(int _pin, int _state);
@@ -96,7 +101,6 @@ private:
     QAudioOutput *audioOutput;
     QIODevice *inputDevice;
     QIODevice *outputDevice;
-//    QByteArray buffer;
 
     int volume = 99;
 
@@ -109,6 +113,15 @@ private:
     void playBuffer(QByteArray &buffer);
 
     int applyVolumeToSample(short iSample);
+
+    // MP3
+    CallPlayer callPlayer;
+    QThread callPlayerThread;
+
+    void initCallPlayer();
+
+    void callMusicStart();
+    void callMusicStop();
 
     //For orangePI GPIO
     QVector<int>buttonsPins;

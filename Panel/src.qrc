@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ringtones/1.mp3</file>
+        <file>ringtones/2.mp3</file>
+        <file>ringtones/3.mp3</file>
+        <file>ringtones/4.mp3</file>
+        <file>ringtones/5.mp3</file>
+    </qresource>
+</RCC>
