@@ -14,11 +14,10 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Multimedi
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        udpnet.h
-        udpnet.cpp
+
+        mainwindow.h mainwindow.cpp mainwindow.ui
+        udpnet.h udpnet.cpp
+        popup.h popup.cpp popup.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

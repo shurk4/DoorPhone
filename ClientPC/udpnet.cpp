@@ -88,13 +88,14 @@ void UDPNet::socketDisconnected()
     if(udpSocket != nullptr)
     {
         delete udpSocket;
+        udpSocket = nullptr;
         // udpSocket->disconnect();
         // udpSocket->disconnectFromHost();
         // udpSocket->deleteLater();
         // udpSocket = nullptr;
-        toLog("Socket disconnected");
+        toLog("Socket UDP disconnected");
         QString com = "&" + QString::number(DISCONNECT);
-        emit signalData(com.toUtf8());
+        // emit signalData(com.toUtf8());
 
         online = false;
     }

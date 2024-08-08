@@ -26,10 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButtonMute->setDisabled(true);
 
     createTrayIcon();
+    preparePopUp();
 }
 
 MainWindow::~MainWindow()
 {
+    delete pop;
     delete ui;
 }
 /* Метод, который обрабатывает событие закрытия окна приложения
@@ -45,11 +47,10 @@ void MainWindow::closeEvent(QCloseEvent * event)
         this->hide();
         QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(QSystemTrayIcon::Information);
 
-        trayIcon->showMessage("Tray Program",
-                              ("Приложение свернуто в трей. Для того чтобы, "
-                               "развернуть окно приложения, щелкните по иконке приложения в трее"),
+        trayIcon->showMessage("Домофон",
+                              ("Я тут! Развернусь при вызове!"),
                               icon,
-                              2000);
+                              500);
     }
 }
 /* Метод, который обрабатывает нажатие на иконку приложения в трее
@@ -58,7 +59,7 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason){
     case QSystemTrayIcon::Trigger:
-        showHideWindow();
+        showHidePopUp();
         break;
     default:
         break;
@@ -97,11 +98,8 @@ void MainWindow::startTCP()
 
         socket->connectToHost(ipAdr, portTCP);
         toLog("Connecting to host");
-        timeout = new QTimer;
-        toLog("New timer");
-        connect(timeout, &QTimer::timeout, this, &MainWindow::connectionTimeout);
-        toLog("Timer signals connected");
-        timeout->start(timeoutTime);
+        QTimer::singleShot(timeoutTime, this, &MainWindow::connectionTimeout);
+        tcpBusy = true;
         toLog("Timer started");
     }
     else
@@ -121,18 +119,25 @@ void MainWindow::startUDP()
 }
 
 void MainWindow::stopUDP()
-{
+{    
+    toLog("Stopping UDP");
     if(network.isOnline())
     {
-        toLog("Stopping UDP");
         network.socketDisconnected();
+        toLog("UDP stopped");
+    }
+    else
+    {
+        toLog("UDP not connected");
     }
 }
 
 void MainWindow::callAnswer()
 {
+    toLog("Call answer");
     if(ui->pushButtonAnswer->isChecked())
     {
+        toLog("Start talk");
         startAudio();
         startUDP();
         sendCommand(ANSWER);
@@ -140,13 +145,14 @@ void MainWindow::callAnswer()
     }
     else
     {
+        toLog("Stop talk");
         stopUDP();
         stopAudio();
         sendCommand(END_CALL);
         ui->pushButtonAnswer->setChecked(false);
         ui->pushButtonAnswer->setDisabled(true);
         ui->pushButtonMute->setDisabled(true);
-        showHideWindow();
+        showHidePopUp();
     }
 }
 
@@ -155,10 +161,7 @@ void MainWindow::applyCommand(int _com)
     toLog("Apply command: " + QString::number(_com));
     if(_com & INCOMMING_CALL)
     {
-        if(!this->isVisible())
-        {
-            showHideWindow();
-        }
+            showHidePopUp();
         ui->pushButtonAnswer->setEnabled(true);
     }
     if(_com & END_CALL)
@@ -181,15 +184,20 @@ void MainWindow::applyCommand(int _com)
 
 void MainWindow::sendCommand(int _com)
 {
-    if(socket->isWritable())
+    QString command = "&" + QString::number(_com);
+    toLog("Send command: " + QString::number(_com));
+
+    if(connected & socket->isWritable())
     {
-        QString command = "&" + QString::number(_com);
         socket->write(command.toUtf8());
+        toLog("Command sended");
     }
+    else toLog("Not connected");
 }
 
 void MainWindow::endCall()
 {
+    toLog("End call");
     ui->pushButtonAnswer->setChecked(false);
     ui->pushButtonAnswer->setDisabled(true);
     callAnswer();
@@ -216,32 +224,40 @@ void MainWindow::socketConnected()
 void MainWindow::socketDisconected()
 {
     toLog("Socket disconnected");
-    socket->disconnectFromHost();
-
+    connected = false;
+    disconnect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
     toLog("Socket signals disconnected");
 
-    delete socket;
+    stopAudio();
+    stopUDP();
+
+    ui->pushButtonAnswer->setChecked(false);
+    ui->pushButtonAnswer->setDisabled(true);
+    ui->pushButtonMute->setChecked(false);
+    ui->pushButtonMute->setDisabled(true);
+
+    socket->deleteLater();
     toLog("Socket deleted");
     socket = nullptr;
     toLog("Socket = nullptr");
-    connected = false;
     toLog("TCP disconnected");
+
+    if(pop->isVisible())
+    {
+        pop->hideAnimation();
+    }
     startTCP();
 }
 
 void MainWindow::connectionTimeout()
 {
+    toLog("---");
     toLog("Connection timeout signal!");
-    timeout->disconnect();
-    toLog("Timeout desconnected");
-    delete timeout;
-    toLog("Timeout deleted");
 
     if(!connected)
     {
         toLog("Not connected");
         socketDisconected();
-        startTCP();
     }
 }
 
@@ -250,12 +266,56 @@ void MainWindow::readInput()
     if(!audioInput)
         return;
 
-    network.sendData(inputDevice->readAll());
+    try {
+        network.sendData(inputDevice->readAll());
+    } catch (...) {
+        toLog("CATCH!!! Read input couldn't send data to network!");
+    }
 }
 
 void MainWindow::readUDP(QByteArray _data)
 {
-    outputDevice->write(_data);
+    try {
+        outputDevice->write(_data);
+    } catch (...) {
+        toLog("Read UDP could not write to audio device!");
+    }
+}
+
+void MainWindow::toMainWindow()
+{
+    toLog("To main window");
+    this->show();
+}
+
+void MainWindow::popCallClicked()
+{
+    toLog("Pop call clicked");
+    if(ui->pushButtonAnswer->isEnabled())
+    {
+        if(ui->pushButtonAnswer->isChecked())
+        {
+            ui->pushButtonAnswer->setChecked(false);
+            callAnswer();
+        }
+        else
+        {
+            ui->pushButtonAnswer->setChecked(true);
+            callAnswer();
+        }
+    }
+}
+
+void MainWindow::popDoor1Clicked()
+{
+    toLog("Pop door 1 clicked");
+    sendCommand(DOOR_1);
+}
+
+void MainWindow::popDoor2Clicked()
+{
+    toLog("Pop door 2 clicked");
+    sendCommand(DOOR_2);
 }
 
 // Audio
@@ -323,6 +383,7 @@ void MainWindow::startAudio()
 
 void MainWindow::stopAudio()
 {
+    toLog("Stop audio");
     audioInput->stop();
     audioOutput->stop();
 }
@@ -346,13 +407,14 @@ void MainWindow::readSettings()
 
 void MainWindow::createTrayIcon()
 {
+    toLog("Create tray icon");
     /* Инициализируем иконку трея, устанавливаем иконку из набора системных иконок,
      * а также задаем всплывающую подсказку
      * */
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setIcon(this->style()->standardIcon(QStyle::SP_ComputerIcon));
-    trayIcon->setToolTip("Tray Program" "\n"
-                         "Работа со сворачиванием программы трей");
+    trayIcon->setToolTip("Домофон" "\n"
+                         "Отображает всплывающее окно при вызове");
     /* После чего создаем контекстное меню из двух пунктов*/
     QMenu * menu = new QMenu(this);
     QAction * viewWindow = new QAction("Развернуть окно", this);
@@ -384,10 +446,31 @@ void MainWindow::createTrayIcon()
 
 void MainWindow::showHideWindow()
 {
-    if(!this->isVisible()){
-        this->show();
-    } else {
+    toLog("Show / hide window");
+    if(this->isVisible()){
         this->hide();
+    } else {
+        this->show();
+    }
+}
+
+void MainWindow::preparePopUp()
+{
+    toLog("Prepare PopUp");
+    pop = new PopUp;
+    connect(pop, &PopUp::toMainWindow, this, &MainWindow::toMainWindow);
+    connect(pop, &PopUp::callClicked, this, &MainWindow::popCallClicked);
+    connect(pop, &PopUp::door1Clicked, this, &MainWindow::popDoor1Clicked);
+    connect(pop, &PopUp::door2Clicked, this, &MainWindow::popDoor2Clicked);
+}
+
+void MainWindow::showHidePopUp()
+{
+    toLog("Show / hide PopUp");
+    if(pop->isVisible()){
+        pop->hideAnimation();
+    } else {
+        pop->show();
     }
 }
 
@@ -395,6 +478,7 @@ void MainWindow::applySettings()
 {
     toLog("Settings window is closed");
     readSettings();
+    toLog("Settings applyed");
 }
 
 void MainWindow::on_pushButtonSettings_clicked()
