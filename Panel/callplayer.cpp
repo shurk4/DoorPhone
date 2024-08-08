@@ -24,14 +24,23 @@ void CallPlayer::run()
 {
     qDebug() << "--- Call player started in thread: " << QThread::currentThreadId();
 
-    playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
     playlist->setCurrentIndex(3);
 
     player->setPlaylist(playlist);
 }
 
-void CallPlayer::start()
-{
+void CallPlayer::start(bool _loop)
+{    
+    if(_loop)
+    {
+        qDebug() << "Start in loop";
+        playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+    }
+    else
+    {
+        qDebug() << "Start once";
+        playlist->setPlaybackMode(QMediaPlaylist::CurrentItemOnce);
+    }
     qDebug() << "--- Start call sound";
     player->play();
 }
@@ -40,4 +49,9 @@ void CallPlayer::stop()
 {
     player->stop();
     qDebug() << "--- Stop call sound";
+}
+
+int CallPlayer::getPlaylistSize()
+{
+    return playlist->mediaCount();
 }

@@ -27,13 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     listInterfaces();
     listLocalAdresses();
 
-
-    connect(this, &MainWindow::callMusicStopSignal, &callPlayer, &CallPlayer::stop);
-    connect(this, &MainWindow::callMusicStartSignal, &callPlayer, &CallPlayer::start);
-    connect(&callPlayerThread, &QThread::started, &callPlayer, &CallPlayer::run);
-
-    callPlayer.moveToThread(&callPlayerThread);
-    callPlayerThread.start();
+    initCallPlayer();
 }
 
 MainWindow::~MainWindow()
@@ -53,15 +47,6 @@ void MainWindow::readSettings()
     ui->lineEditPortUdp->setText(settings.value("UDP port").toString());
     ui->lineEditPortTcp->setText(settings.value("TCP port").toString());
 
-    ui->verticalSliderSpkVol->blockSignals(true);
-    ui->verticalSliderSpkVol->setValue(settings.value("spkVol").toInt());
-    ui->labelSpkVol->setText(settings.value("spkVol").toString());
-    ui->verticalSliderSpkVol->blockSignals(false);
-    ui->verticalSliderMicVol->blockSignals(true);
-    ui->verticalSliderMicVol->setValue(settings.value("micVol").toInt());
-    ui->labelMicVol->setText(settings.value("micVol").toString());
-    ui->verticalSliderMicVol->blockSignals(false);
-
     this->restoreGeometry(settings.value("window geometry").toByteArray());
     settings.endGroup();
     toLog("OK");
@@ -76,8 +61,6 @@ void MainWindow::writeSettins()
     settings.setValue("call timer", ui->lineEditCallTimer->text());
     settings.setValue("UDP port", ui->lineEditPortUdp->text());
     settings.setValue("TCP port", ui->lineEditPortTcp->text());
-    settings.setValue("spkVol", ui->verticalSliderSpkVol->value());
-    settings.setValue("micVol", ui->verticalSliderMicVol->value());
     settings.setValue("window geometry", this->saveGeometry());
     settings.endGroup();
     toLog("OK");
@@ -96,6 +79,7 @@ void MainWindow::startTCP()
     toLog(" TCP Server");
     server.startServer(ui->lineEditPortTcp->text().toInt());
     connect(&server, &Server::signalSendText, this, &MainWindow::reciveData);
+    connect(&server,&Server::clientsListChanged, this, &MainWindow::clientsListChanged);
     toLog(" OK");
 }
 
@@ -209,10 +193,10 @@ void MainWindow::startAudio()
     toLog("");
     toLog("Audio turn on");
     //Audio output device
-    audioOutput->setVolume(ui->verticalSliderSpkVol->value());
+    audioOutput->setVolume(100);
     outputDevice = audioOutput->start();
         //Audio input device
-    audioInput->setVolume(ui->verticalSliderMicVol->value());
+    audioInput->setVolume(100);
     inputDevice = audioInput->start();
     //connect readyRead signal to readMre slot.
     //Call readmore when audio samples fill in inputbuffer
@@ -323,6 +307,7 @@ void MainWindow::incommingCallStop()
 
 void MainWindow::answer()
 {
+    callMusicStop();
     toLog("Answer call");
     timer->disconnect();
     toLog("timer disconnected");
@@ -405,10 +390,31 @@ int MainWindow::applyVolumeToSample(short iSample)
     return std::max(std::min(((iSample * volume) / 50) ,35535), -35535);
 }
 
+void MainWindow::initCallPlayer()
+{
+    connect(this, &MainWindow::callMusicStopSignal, &callPlayer, &CallPlayer::stop);
+    connect(this, &MainWindow::callMusicStartSignal, &callPlayer, &CallPlayer::start);
+    connect(&callPlayerThread, &QThread::started, &callPlayer, &CallPlayer::run);
+
+    callPlayer.moveToThread(&callPlayerThread);
+    callPlayerThread.start();
+    showCallsPlaylist();
+}
+
+void MainWindow::showCallsPlaylist()
+{
+    ui->listWidgetSounds->clear();
+    for(int i = 0; i < callPlayer.getPlaylistSize(); i++)
+    {
+        QString itemText = "Sound: " + QString::number(i + 1);
+        ui->listWidgetSounds->addItem(itemText);
+    }
+}
+
 void MainWindow::callMusicStart()
 {
-    callPlayer.setTrackIndex(5);
-    emit callMusicStartSignal();
+    callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
+    emit callMusicStartSignal(true);
 }
 
 void MainWindow::callMusicStop()
@@ -453,6 +459,18 @@ void MainWindow::incommingCallTimerShot()
     incommingCallStop();
 }
 
+void MainWindow::clientsListChanged()
+{
+    toLog("Clients list changed");
+    QStringList clients = server.getClientList();
+    toLog("Show IP's");
+    ui->listWidgetClients->clear();
+    for(auto i : clients)
+    {
+        ui->listWidgetClients->addItem(i);
+    }
+}
+
 void MainWindow::on_pushButton1_clicked()
 {
     if(digitalRead(out1Pin) == HIGH)
@@ -468,51 +486,14 @@ void MainWindow::on_pushButton2_clicked()
     door2();
 }
 
-void MainWindow::on_verticalSliderSpkVol_valueChanged(int value)
-{
-    ui->labelSpkVol->setText(QString::number(value * 10));
-
-//    if(value == 0)
-//    {
-//        audioOutput->stop();
-//        toLog("Speaker is muted");
-//        return;
-//    }
-
-//    if (audioOutput->state() == QAudio::StoppedState)
-//    {
-//        audioOutput->start();
-//    }
-
-    int vol = ui->verticalSliderSpkVol->value();
-    double volD = (double)vol / 10;
-
-    audioOutput->setVolume(volD);
-    toLog("Current speaker volume: " + QString::number(audioOutput->volume()));
-}
-
-void MainWindow::on_verticalSliderMicVol_valueChanged(int value)
-{
-    ui->labelMicVol->setText(QString::number(value * 10));
-    if(value = 0)
-    {
-        audioInput->stop();
-        return;
-    }
-    else if(audioInput->state() == QAudio::StoppedState)
-    {
-        audioInput->start();
-    }
-
-    int vol = ui->verticalSliderMicVol->value();
-    double volD = (double)vol / 10;
-
-    audioInput->setVolume(volD);
-    toLog("Current microphone volume: " + QString::number(audioInput->volume()));
-}
-
 void MainWindow::on_pushButtonCall_clicked()
 {
     incommingCallStart();
+}
+
+void MainWindow::on_listWidgetSounds_itemSelectionChanged()
+{
+    callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
+    emit callMusicStartSignal(false);
 }
 

@@ -49,12 +49,14 @@ public:
 signals:
     void stopPins();
 
-    void callMusicStartSignal();
+    void callMusicStartSignal(bool);
     void callMusicStopSignal();
 
 public slots:
     void btnStateChanged(int _pin, int _state);
     void incommingCallTimerShot();
+
+    void clientsListChanged();
 
 private slots:
     void readInput();
@@ -68,11 +70,9 @@ private slots:
 
     void on_pushButton2_clicked();
 
-    void on_verticalSliderSpkVol_valueChanged(int value);
-
-    void on_verticalSliderMicVol_valueChanged(int value);
-
     void on_pushButtonCall_clicked();
+
+    void on_listWidgetSounds_itemSelectionChanged();
 
 private:
     Ui::MainWindow *ui;
@@ -120,6 +120,7 @@ private:
 
     void initCallPlayer();
 
+    void showCallsPlaylist();
     void callMusicStart();
     void callMusicStop();
 

@@ -15,8 +15,10 @@ class CallPlayer : public QObject
 
 public slots:
     void run();
-    void start();
+    void start(bool _loop);
     void stop();
+
+    int getPlaylistSize();
 
 public:
     CallPlayer();
