@@ -164,9 +164,12 @@ void MainWindow::applyCommand(int _com)
             showHidePopUp();
         ui->pushButtonAnswer->setEnabled(true);
     }
-    if(_com & END_CALL)
+    if(_com & END_CALL || _com & ANSWER)
     {
-        endCall();
+        if(!ui->pushButtonAnswer->isChecked())
+        {
+            endCall();
+        }
     }
     if(_com & DISCONNECT)
     {
@@ -179,6 +182,11 @@ void MainWindow::applyCommand(int _com)
     if(_com & DOOR_2_IS_CLOSED)
     {
         ui->pushButtonDoor2->setChecked(false);
+    }
+    if(_com & PING)
+    {
+        toLog("Ping recived, send ping");
+        sendCommand(PING);
     }
 }
 

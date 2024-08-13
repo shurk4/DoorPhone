@@ -21,7 +21,8 @@ enum COMMANDS{
     DOOR_1_IS_OPEN = 64,
     DOOR_2_IS_OPEN = 128,
     DOOR_1_IS_CLOSED = 256,
-    DOOR_2_IS_CLOSED = 512
+    DOOR_2_IS_CLOSED = 512,
+    PING = 1024
 };
 
 namespace Ui {
