@@ -137,6 +137,7 @@ void MainWindow::callAnswer()
     toLog("Call answer");
     if(ui->pushButtonAnswer->isChecked())
     {
+        isAnswered = true;
         toLog("Start talk");
         startAudio();
         startUDP();
@@ -148,7 +149,11 @@ void MainWindow::callAnswer()
         toLog("Stop talk");
         stopUDP();
         stopAudio();
-        sendCommand(END_CALL);
+        if(isAnswered)
+        {
+            sendCommand(END_CALL);
+            isAnswered = false;
+        }
         ui->pushButtonAnswer->setChecked(false);
         ui->pushButtonAnswer->setDisabled(true);
         ui->pushButtonMute->setDisabled(true);
