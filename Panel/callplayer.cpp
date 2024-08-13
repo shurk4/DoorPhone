@@ -47,8 +47,8 @@ void CallPlayer::start(bool _loop)
 
 void CallPlayer::stop()
 {
-    player->stop();
     qDebug() << "--- Stop call sound";
+    player->stop();
 }
 
 int CallPlayer::getPlaylistSize()

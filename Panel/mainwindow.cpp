@@ -75,17 +75,18 @@ void MainWindow::toLog(QString _log)
 void MainWindow::startTCP()
 {
     toLog("");
-    toLog("Starting network");
+    toLog("Starting TCP network");
     toLog(" TCP Server");
     server.startServer(ui->lineEditPortTcp->text().toInt());
     connect(&server, &Server::signalSendText, this, &MainWindow::reciveData);
-    connect(&server,&Server::clientsListChanged, this, &MainWindow::clientsListChanged);
+    connect(&server, &Server::clientsListChanged, this, &MainWindow::clientsListChanged);
+    connect(&server, &Server::noClientsConnected, this, &MainWindow::noClientsConnected);
     toLog(" OK");
 }
 
 void MainWindow::startUDP()
 {
-    toLog(" UDP");
+    toLog("Starting UDP network");
     network.setPort(ui->lineEditPortUdp->text().toInt());
     network.initUdp();
     connect(&network, &UDPNet::signalData, this, &MainWindow::slotData);
@@ -95,9 +96,10 @@ void MainWindow::startUDP()
 
 void MainWindow::stopUDP()
 {
+    toLog("Stop UDP network");
     if(network.isOnline())
     {
-        toLog("Stopping UDP");
+        toLog("is online! Stopping UDP");
         network.socketDisconnected();
     }
 }
@@ -253,11 +255,21 @@ void MainWindow::applyCommand(int _com)
     toLog("Apply command: " + QString::number(_com));
     if(_com & ANSWER)
     {
-        answer();
+        if(isIncommingCall & !isAnswered)
+        {
+            isAnswered = true;
+            isIncommingCall = false;
+            answer();
+            sendCommand(ANSWER);
+        }
     }
     if(_com & END_CALL)
     {
-        stopCall();
+        if(isAnswered & !isIncommingCall)
+        {
+            isAnswered = false;
+            stopCall();
+        }
     }
     if(_com & DOOR_1)
     {
@@ -271,11 +283,13 @@ void MainWindow::applyCommand(int _com)
 
 void MainWindow::sendCommand(int _com)
 {
+    toLog("Send command: " + QString::number(_com));
     server.lanSendCommand(_com);
 }
 
 void MainWindow::incommingCallStart()
 {
+    toLog("Incomming call start");
     if(isIncommingCall) return;
 
     callMusicStart();
@@ -290,14 +304,15 @@ void MainWindow::incommingCallStart()
 
 void MainWindow::incommingCallStop()
 {
+    toLog("Incomming call stop");
     if(isIncommingCall)
     {
+        callMusicStop();
         timer->disconnect();
         delete timer;
         sendCommand(END_CALL);
         isIncommingCall = false;
         ui->pushButtonCall->setChecked(false);
-        callMusicStop();
     }
     else
     {
@@ -309,6 +324,7 @@ void MainWindow::answer()
 {
     callMusicStop();
     toLog("Answer call");
+    ui->pushButtonTalk->setChecked(true);
     timer->disconnect();
     toLog("timer disconnected");
     delete timer;
@@ -321,15 +337,18 @@ void MainWindow::answer()
 void MainWindow::stopCall()
 {
     toLog("Calling end");
+    ui->pushButtonTalk->setChecked(false);
+
     stopAudio();
     stopUDP();
+
     ui->pushButtonCall->setChecked(false);
     isIncommingCall = false;
 }
 
 void MainWindow::door1()
 {
-
+    toLog("Open door 1");
     if(digitalRead(out1Pin) == HIGH)
     {
         digitalWrite(out1Pin, LOW);
@@ -341,7 +360,7 @@ void MainWindow::door1()
 
 void MainWindow::door2()
 {
-
+    toLog("Open door 2");
     if(digitalRead(out2Pin) == HIGH)
     {
         digitalWrite(out2Pin, LOW);
@@ -353,12 +372,14 @@ void MainWindow::door2()
 
 void MainWindow::door1isClosed()
 {
+    toLog("Door 1 is closed");
     sendCommand(DOOR_1_IS_CLOSED);
     door1();
 }
 
 void MainWindow::door2isClosed()
 {
+    toLog("Door 2 is closed");
     sendCommand(DOOR_2_IS_CLOSED);
     door2();
 }
@@ -369,17 +390,6 @@ void MainWindow::readInput()
     if(!audioInput){
         return;
     }
-
-//    if(mute)
-//    {
-//        return;
-//    }
-
-//    if(echo)
-//    {
-    //    outputDevice->write(inputDevice->readAll());
-
-//    }
 
     network.sendData(inputDevice->readAll());
 }
@@ -392,6 +402,7 @@ int MainWindow::applyVolumeToSample(short iSample)
 
 void MainWindow::initCallPlayer()
 {
+    toLog("Init call player");
     connect(this, &MainWindow::callMusicStopSignal, &callPlayer, &CallPlayer::stop);
     connect(this, &MainWindow::callMusicStartSignal, &callPlayer, &CallPlayer::start);
     connect(&callPlayerThread, &QThread::started, &callPlayer, &CallPlayer::run);
@@ -403,6 +414,7 @@ void MainWindow::initCallPlayer()
 
 void MainWindow::showCallsPlaylist()
 {
+    toLog("Show call play list");
     ui->listWidgetSounds->clear();
     for(int i = 0; i < callPlayer.getPlaylistSize(); i++)
     {
@@ -413,12 +425,14 @@ void MainWindow::showCallsPlaylist()
 
 void MainWindow::callMusicStart()
 {
+    toLog("CAll music start");
     callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
     emit callMusicStartSignal(true);
 }
 
 void MainWindow::callMusicStop()
 {
+    toLog("Call music stop");
     emit callMusicStopSignal();
 }
 
@@ -463,12 +477,29 @@ void MainWindow::clientsListChanged()
 {
     toLog("Clients list changed");
     QStringList clients = server.getClientList();
-    toLog("Show IP's");
-    ui->listWidgetClients->clear();
-    for(auto i : clients)
+    if(clients.isEmpty())
     {
-        ui->listWidgetClients->addItem(i);
+        toLog("Clients list empty");
     }
+    else
+    {
+        toLog("Show clients IP's");
+        ui->listWidgetClients->clear();
+        for(auto i : clients)
+        {
+            ui->listWidgetClients->addItem(i);
+        }
+    }
+}
+
+void MainWindow::noClientsConnected()
+{
+    toLog("No connected clients");
+    if(ui->pushButtonTalk->isChecked())
+    {
+        stopCall();
+    }
+    toLog("Wiating new clients");
 }
 
 void MainWindow::on_pushButton1_clicked()

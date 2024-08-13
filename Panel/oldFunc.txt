@@ -1,0 +1,89 @@
+
+void Server::checkSockets()
+{
+    qDebug() << "Check sockets";
+    if(sockets.size() > 0)
+    {
+        qDebug() << "Socket is not empty";
+        for(auto socket = sockets.begin(); socket != sockets.end(); socket++)
+        {
+
+            qDebug() << "Socket descryptor: " << socket.value().socket->socketDescriptor() << " ip: " << socket.value().socket->peerAddress().toString() << " ping times: " << QString::number(socket.value().pingTimes);
+            if(socket.value().pingTimes >= 3)
+            {
+                qDebug() << "No ping, disconnect";
+                disconnectSocket(socket.key());
+                continue;
+            }
+
+            qDebug() << "Send ping";
+            QString msg = "&" + QString::number(PING);
+            socket.value().socket->write(msg.toUtf8());
+            qDebug() << "Up ping counter";
+            socket.value().pingTimes++;
+        }
+        if(!sockets.isEmpty())
+        {
+            startCheckSocketsTimer();
+        }
+    }
+    else
+    {
+        qDebug() << "Sockets empty";
+    }
+}
+
+
+
+void Server::socketDisconected()
+{
+    log("Client disconnected.");
+
+    QTcpSocket *client = (QTcpSocket*)sender();
+
+    qDebug() << "ID: " << client->socketDescriptor();
+
+    disconnectSocket(client->socketDescriptor());
+}
+
+void Server::disconnectSocket(QTcpSocket *_socket)
+{
+    qDebug() << "Disconnect socket";
+    if(sockets.contains(_socket))
+    {
+        qDebug() << "Sockets size: " << sockets.size();
+        log(QString::number(_socket->socketDescriptor()) + " with ip: " + sockets[_socket].socket->peerAddress().toString() + ": is disconected");
+        sockets.remove(_socket);
+
+        emit clientsListChanged();
+    }
+    qDebug() << "Sockets size: " << sockets.size();
+    if(sockets.empty()) emit noClientsConnected();
+}
+
+
+void Server::incomingConnection(qintptr socketDescriptor)
+{
+    log("Incomming connection");
+
+    QTcpSocket* socket = new QTcpSocket(this);
+    socket->setSocketDescriptor(socketDescriptor);
+
+    connect(socket,SIGNAL(readyRead()),this,SLOT(socketReady()));
+    connect(socket,SIGNAL(disconnected()),this,SLOT(socketDisconected()));
+
+    qDebug() << socketDescriptor << " Client connected";
+
+    log("Incomming connection estabilished with ID: " + QString::number(socketDescriptor));
+    QString toClient = "You are connect to test server with ID: " + QString::number(socketDescriptor);
+    socket->write(toClient.toUtf8());
+    log("Client: " + QString::number(socketDescriptor) + " connected. IP: " + socket->peerAddress().toString());
+
+    sData.socket = socket;
+    sockets.insert(socketDescriptor, sData);
+//    sockets[socketDescriptor].socket = socket;
+
+    log("Hello message sended to client.");
+    emit clientsListChanged();
+    checkSockets();
+}

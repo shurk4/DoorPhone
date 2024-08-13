@@ -27,8 +27,8 @@ void UDPNet::setInterfaceByIndex(int index)
 
 void UDPNet::setPort(uint _port)
 {
-    port = _port;
     toLog("Set UDP port: " + QString::number(_port));
+    port = _port;
 }
 
 uint UDPNet::getPort()
@@ -84,6 +84,7 @@ void UDPNet::socketDisconnected()
     if(udpSocket != nullptr)
     {
         delete udpSocket;
+        udpSocket = nullptr;
         toLog("UDP socket disconnected");
         online = false;
     }

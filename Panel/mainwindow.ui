@@ -155,21 +155,6 @@
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="label_8">
-      <property name="font">
-       <font>
-        <pointsize>11</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>!!! HAVE PROBLEM WITH VOLUME CHANGE FOR SPEAKER !!!</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QTextBrowser" name="textBrowser"/>
     </item>
     <item>
@@ -189,9 +174,9 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="pushButtonEcho">
+       <widget class="QPushButton" name="pushButtonTalk">
         <property name="text">
-         <string>Echo</string>
+         <string>Talk</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
