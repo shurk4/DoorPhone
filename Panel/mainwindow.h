@@ -53,6 +53,9 @@ signals:
     void callMusicStartSignal(bool);
     void callMusicStopSignal();
 
+    void tcpSend(int);
+    void tcpSendText(QString);
+
 public slots:
     void btnStateChanged(int _pin, int _state);
     void incommingCallTimerShot();
@@ -86,7 +89,8 @@ private:
     void toLog(QString _log);
 
     // Lan
-    Server server;
+    Server *tcpServer;
+    QThread *tcpServerThread;
     UDPNet network;
 
     void startTCP();
@@ -112,9 +116,6 @@ private:
     void createAudioOutput();
     void startAudio();
     void stopAudio();
-    void playBuffer(QByteArray &buffer);
-
-    int applyVolumeToSample(short iSample);
 
     // MP3
     CallPlayer callPlayer;

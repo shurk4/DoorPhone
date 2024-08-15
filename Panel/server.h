@@ -39,20 +39,18 @@ class Server : public QTcpServer
     Q_OBJECT
 
     uint port = 5555;
-//    QTcpSocket* socket = nullptr;
-//    QVector<QTcpSocket*> sockets;
-//    QMap<int, SocketData> sockets;
     QMap<QTcpSocket*, int> sockets;
     QByteArray data;
     SocketData sData;
 
-    void startCheckSocketsTimer();
-    QTimer *timer;
+    QTimer *pingTimer;
+    int pingTime = 5000;
 
 public:
     Server();
     ~Server();
 
+    void setPort(const uint _port);
     void closeEvent(QCloseEvent *event);
 
     // отправить сообщение в лог и по сети
@@ -62,11 +60,14 @@ public:
     void lanSendCommand(int _com);
 
     QStringList getClientList();
+    void startCheckSocketsTimer();
+
+    bool isCalling = false;
 
 public slots:
     void checkSockets();
     // Запуск сервера
-    void startServer(const uint port);
+    void run();
     // Обработка входящих соединений
     void incomingConnection(const qintptr socketDescriptor);
     void disconnectSocket(QTcpSocket *_socket);
@@ -75,6 +76,7 @@ public slots:
     void socketReady();
     // Отключение клиента
     void socketDisconected();
+    void sendCommand(int _com);
 
 signals:
     void signalSendText(const QString);

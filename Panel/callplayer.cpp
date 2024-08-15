@@ -4,8 +4,8 @@ CallPlayer::CallPlayer()
 {
 
     qDebug() << "--- Call player starting!";
-    player = new QMediaPlayer(this);
-    playlist = new QMediaPlaylist(this);
+    player = new QMediaPlayer();
+    playlist = new QMediaPlaylist();
 
     playlist->addMedia(QUrl("qrc:/ringtones/1.mp3"));
     playlist->addMedia(QUrl("qrc:/ringtones/2.mp3"));
@@ -27,6 +27,8 @@ void CallPlayer::run()
     playlist->setCurrentIndex(3);
 
     player->setPlaylist(playlist);
+    connect(this, &CallPlayer::signalPlay, player, &QMediaPlayer::play);
+    connect(this, &CallPlayer::signalStop, player, &QMediaPlayer::stop);
 }
 
 void CallPlayer::start(bool _loop)
@@ -42,13 +44,15 @@ void CallPlayer::start(bool _loop)
         playlist->setPlaybackMode(QMediaPlaylist::CurrentItemOnce);
     }
     qDebug() << "--- Start call sound";
-    player->play();
+//    player->play();
+    emit signalPlay();
 }
 
 void CallPlayer::stop()
 {
     qDebug() << "--- Stop call sound";
-    player->stop();
+//    player->stop();
+    emit signalStop();
 }
 
 int CallPlayer::getPlaylistSize()

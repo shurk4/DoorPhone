@@ -1,28 +1,65 @@
 #include "server.h"
 
+Server::Server()
+{
+//    pingTimer = new QTimer();
+//    connect(pingTimer, &QTimer::timeout, this, &Server::checkSockets);
+}
+
+Server::~Server()
+{
+    qDebug() << "Destructor!!!";
+
+    qDebug() << "Sockets size: " << QString::number(sockets.size());
+
+    if(!sockets.empty())
+    {
+        for(auto socket = sockets.begin(); socket != sockets.end(); socket++)
+        {
+            socket.key()->deleteLater();
+            sockets.erase(socket);
+            socket--;
+        }
+    }
+    sockets.clear();
+    qDebug() << "Destructor!!!";
+}
+
+void Server::setPort(const uint _port)
+{
+    port = _port;
+}
+
 void Server::checkSockets()
 {
     qDebug() << "Check sockets";
+    if(isCalling)
+    {
+        qDebug() << "Is calling, return";
+        return;
+//        pingTimer->stop();
+    }
+
     if(sockets.size() > 0)
     {
-        qDebug() << "Socket is not empty";
+        qDebug() << "Socket is not empty, have " << sockets.size() << " connected clients";
         for(auto socket = sockets.begin(); socket != sockets.end(); socket++)
         {
             if(socket.key()->state() == QAbstractSocket::UnconnectedState)
             {
                 log("Socket state is disconnected");
                 disconnectSocket(socket.key());
+                socket.key()->deleteLater();
+                sockets.erase(socket);
                 socket--;
             }
-        }
-        if(!sockets.isEmpty())
-        {
-            startCheckSocketsTimer();
         }
     }
     else
     {
         qDebug() << "Sockets empty";
+        qDebug() << "Stop ping timer";
+//        pingTimer->stop();
     }
 }
 
@@ -40,6 +77,11 @@ void Server::socketDisconected()
             return;
         }
     }
+}
+
+void Server::sendCommand(int _com)
+{
+    lanSendCommand(_com);
 }
 
 void Server::disconnectSocket(QTcpSocket *_socket)
@@ -80,35 +122,12 @@ void Server::incomingConnection(qintptr socketDescriptor)
 
     log("Hello message sended to client.");
     emit clientsListChanged();
-    checkSockets();
-}
 
-Server::Server(){}
-
-Server::~Server()
-{
-    qDebug() << "Destructor!!!";
-
-    qDebug() << "Sockets size: " << QString::number(sockets.size());
-
-    if(!sockets.empty())
-    {
-//        for(size_t i = sockets.size(); i >=0 ; i--)
-//        {
-//            qDebug() << "I: " << QString::number(i) << " ID: " << QString::number(sockets[i]->socketDescriptor());
-//            sockets[i]->disconnect();
-//            sockets[i]->deleteLater();
-//            sockets[i] = nullptr;
-//        }
-    }
-
-//    while(sockets.size() != 0)
+//    if(!pingTimer->isActive())
 //    {
-//        sockets.back()->disconnected();
-//        sockets.pop_back();
+//        qDebug() << "Start ping timer";
+//        pingTimer->start(pingTime);
 //    }
-    sockets.clear();
-    qDebug() << "Destructor!!!";
 }
 
 void Server::closeEvent(QCloseEvent *event)
@@ -153,7 +172,7 @@ QStringList Server::getClientList()
     return clientsAdresses;
 }
 
-void Server::startServer(uint port)
+void Server::run()
 {
     if (this->listen(QHostAddress::Any, port))
     {

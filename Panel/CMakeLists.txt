@@ -35,6 +35,9 @@ set(PROJECT_SOURCES
         callplayer.h
         callplayer.cpp
 
+        phone.h
+        phone.cpp
+
         src.qrc
         oldFunc.txt
 )
