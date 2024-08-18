@@ -35,7 +35,11 @@ set(PROJECT_SOURCES
         callplayer.h
         callplayer.cpp
 
+        phone.h
+        phone.cpp
+
         src.qrc
+        oldFunc.txt
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

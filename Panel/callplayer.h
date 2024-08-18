@@ -20,6 +20,11 @@ public slots:
 
     int getPlaylistSize();
 
+signals:
+    void signalPlay();
+    void signalStop();
+
+
 public:
     CallPlayer();
 

@@ -9,23 +9,48 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QTimer>
+#include <QMap>
+
+struct SocketData
+{
+    SocketData();
+//    SocketData(SocketData &_other);
+    ~SocketData();
+    QTcpSocket *socket = nullptr;
+    int pingTimes = 0;
+};
+
+enum COMMANDS{
+    INCOMMING_CALL = 1,
+    END_CALL = 2,
+    ANSWER = 4,
+    DOOR_1 = 8,
+    DOOR_2 = 16,
+    DISCONNECT = 32,
+    DOOR_1_IS_OPEN = 64,
+    DOOR_2_IS_OPEN = 128,
+    DOOR_1_IS_CLOSED = 256,
+    DOOR_2_IS_CLOSED = 512,
+    PING = 1024
+};
 
 class Server : public QTcpServer
 {
     Q_OBJECT
 
     uint port = 5555;
-//    QTcpSocket* socket = nullptr;
-    QVector<QTcpSocket*> sockets;
+    QMap<QTcpSocket*, int> sockets;
     QByteArray data;
+    SocketData sData;
 
-    void startCheckSocketsTimer();
-    QTimer *timer;
+    QTimer *pingTimer;
+    int pingTime = 5000;
 
 public:
     Server();
     ~Server();
 
+    void setPort(const uint _port);
     void closeEvent(QCloseEvent *event);
 
     // отправить сообщение в лог и по сети
@@ -35,24 +60,30 @@ public:
     void lanSendCommand(int _com);
 
     QStringList getClientList();
+    void startCheckSocketsTimer();
+
+    bool isCalling = false;
 
 public slots:
     void checkSockets();
     // Запуск сервера
-    void startServer(const uint port);
+    void run();
     // Обработка входящих соединений
     void incomingConnection(const qintptr socketDescriptor);
+    void disconnectSocket(QTcpSocket *_socket);
 
     // Получение данных от клиента
     void socketReady();
     // Отключение клиента
     void socketDisconected();
+    void sendCommand(int _com);
 
 signals:
     void signalSendText(const QString);
     void signalSendBytes(QByteArray);
 
     void clientsListChanged();
+    void noClientsConnected();
 };
 
 #endif // SERVER_H

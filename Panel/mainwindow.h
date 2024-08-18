@@ -15,18 +15,19 @@
 #include "pins.h"
 #include "callplayer.h"
 
-enum COMMANDS{
-    INCOMMING_CALL = 1,
-    END_CALL = 2,
-    ANSWER = 4,
-    DOOR_1 = 8,
-    DOOR_2 = 16,
-    DISCONNECT = 32,
-    DOOR_1_IS_OPEN = 64,
-    DOOR_2_IS_OPEN = 128,
-    DOOR_1_IS_CLOSED = 256,
-    DOOR_2_IS_CLOSED = 512
-};
+//enum COMMANDS{
+//    INCOMMING_CALL = 1,
+//    END_CALL = 2,
+//    ANSWER = 4,
+//    DOOR_1 = 8,
+//    DOOR_2 = 16,
+//    DISCONNECT = 32,
+//    DOOR_1_IS_OPEN = 64,
+//    DOOR_2_IS_OPEN = 128,
+//    DOOR_1_IS_CLOSED = 256,
+//    DOOR_2_IS_CLOSED = 512,
+//    PING = 1024
+//};
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -52,11 +53,15 @@ signals:
     void callMusicStartSignal(bool);
     void callMusicStopSignal();
 
+    void tcpSend(int);
+    void tcpSendText(QString);
+
 public slots:
     void btnStateChanged(int _pin, int _state);
     void incommingCallTimerShot();
 
     void clientsListChanged();
+    void noClientsConnected();
 
 private slots:
     void readInput();
@@ -84,7 +89,8 @@ private:
     void toLog(QString _log);
 
     // Lan
-    Server server;
+    Server *tcpServer;
+    QThread *tcpServerThread;
     UDPNet network;
 
     void startTCP();
@@ -110,9 +116,6 @@ private:
     void createAudioOutput();
     void startAudio();
     void stopAudio();
-    void playBuffer(QByteArray &buffer);
-
-    int applyVolumeToSample(short iSample);
 
     // MP3
     CallPlayer callPlayer;
@@ -134,6 +137,7 @@ private:
     // Control
     QTimer *timer;
     bool isIncommingCall = false;
+    bool isAnswered = false;
     void applyCommand(int _com);
     void sendCommand(int _com);
     void incommingCallStart();
