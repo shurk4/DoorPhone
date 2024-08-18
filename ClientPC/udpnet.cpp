@@ -87,6 +87,8 @@ void UDPNet::socketDisconnected()
 {
     if(udpSocket != nullptr)
     {
+        disconnect(udpSocket, &QUdpSocket::readyRead, this, &UDPNet::readUdp);
+        disconnect(udpSocket, &QUdpSocket::disconnected, this, &UDPNet::socketDisconnected);
         delete udpSocket;
         udpSocket = nullptr;
         // udpSocket->disconnect();

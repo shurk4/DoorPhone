@@ -6,7 +6,6 @@
 #include <QNetworkDatagram>
 #include <QNetworkProxy>
 #include <QNetworkInterface>
-#include <iostream>
 
 class UDPNet : public QObject
 {

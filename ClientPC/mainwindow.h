@@ -2,11 +2,12 @@
     На клиенте:
         Для приминения настроек приходится пекрезагружать приложение
         Сделать автоматическое добавление в автозагрузку
-        Добавить режим запуска приложения при автозагрузке трей/окно
+        Добавить в настройках режим запуска приложения при автозагрузке трей/окно
 
     На сервере:
         С опозданием получает пакет по tcp о начале разговора, вылетает
         Не выключает звук при начале вызова
+        Сделать отключение усилителя звука транзистором если он не нужен
 
     Общее:
         Сделать отправку аудиосигнала только в UDP группу
@@ -25,8 +26,8 @@ ________________________________________________________________________________
         На сервере:
             Сделать обработку отключения клиентов(Иногда вылетает при отключении клиента) +
             В настройках добавить выбор вызывного сигнала +
-        Вылетает при отключении клиента во время разговора +
-        Вылетает через какое то время после отключения клиента +
+            13.08.2024 Вылетает при отключении клиента во время разговора +
+            13.08.2024 Вылетает через какое то время после отключения клиента +
 **/
 
 #ifndef MAINWINDOW_H
@@ -50,6 +51,7 @@ ________________________________________________________________________________
 #include "udpnet.h"
 #include "settingswindow.h"
 #include "popup.h"
+#include "udpphone.h"
 
 // enum COMMANDS{
 //     INCOMMING_CALL = 1,
@@ -79,9 +81,9 @@ class MainWindow : public QMainWindow
 
     // Network
     QTcpSocket* socket = nullptr;
-    UDPNet network;
+    // UDPNet network;
     QString ipAdr;
-    int portTCP;;
+    int portTCP;
     int portUDP;
     QTimer *timeout;
     int timeoutTime = 5000;
@@ -91,8 +93,8 @@ class MainWindow : public QMainWindow
     bool tcpBusy = false;
 
     void startTCP();
-    void startUDP();
-    void stopUDP();
+    // void startUDP();
+    // void stopUDP();
     void callAnswer();
 
     // TCP commands
@@ -103,22 +105,24 @@ class MainWindow : public QMainWindow
     bool isAnswered = false;
 
     // Sound
-    QAudioDeviceInfo inputDeviceInfo;
-    QAudioDeviceInfo outputDeviceInfo;
-    QAudioFormat audioFormat;
-    QAudioInput *audioInput;
-    QAudioOutput *audioOutput;
-    QIODevice *inputDevice;
-    QIODevice *outputDevice;
-    QByteArray buffer;
-    int volume = 100;
+    UDPPhone *phone;
 
-    void initializeAudio();
-    void createAudioInput();
-    void createAudioOutput();
+    // QAudioDeviceInfo inputDeviceInfo;
+    // QAudioDeviceInfo outputDeviceInfo;
+    // QAudioFormat audioFormat;
+    // QAudioInput *audioInput;
+    // QAudioOutput *audioOutput;
+    // QIODevice *inputDevice;
+    // QIODevice *outputDevice;
+    // QByteArray buffer;
+    // int volume = 100;
 
-    void startAudio();
-    void stopAudio();
+    // void initializeAudio();
+    // void createAudioInput();
+    // void createAudioOutput();
+
+    // void startAudio();
+    // void stopAudio();
 
     // Settings
     void readSettings();
@@ -144,7 +148,7 @@ public:
     void message(QString _msg);
 
 private slots:
-    void readInput();
+    // void readInput();
 
     void iconActivated(QSystemTrayIcon::ActivationReason _reason);
 
@@ -156,7 +160,7 @@ public slots:
     void socketDisconected();
     void connectionTimeout();
 
-    void readUDP(QByteArray _data);
+    // void readUDP(QByteArray _data);
 
     void toMainWindow();
     void popCallClicked();

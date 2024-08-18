@@ -1,0 +1,115 @@
+void MainWindow::startUDP()
+{
+    toLog("Starting UDP network");
+    network.setPort(portUDP);
+    network.initUdp();
+
+    connect(&network, &UDPNet::signalData, this, &MainWindow::readUDP);
+    toLog("OK");
+}
+
+void MainWindow::stopUDP()
+{
+    toLog("Stopping UDP");
+    if(network.isOnline())
+    {
+        network.socketDisconnected();
+        toLog("UDP stopped");
+    }
+    else
+    {
+        toLog("UDP not connected");
+    }
+}
+
+void MainWindow::readInput()
+{
+    if(!audioInput)
+        return;
+
+    try {
+        network.sendData(inputDevice->readAll());
+    } catch (...) {
+        toLog("CATCH!!! Read input couldn't send data to network!");
+    }
+}
+
+void MainWindow::readUDP(QByteArray _data)
+{
+    try {
+        outputDevice->write(_data);
+    } catch (...) {
+        toLog("Read UDP could not write to audio device!");
+    }
+}
+
+
+// Audio
+
+void MainWindow::initializeAudio()
+{
+    toLog("Initialize audio format");
+    audioFormat.setSampleRate(8000); //set frequency to 8000
+    audioFormat.setChannelCount(1); //set channels to mono
+    audioFormat.setSampleSize(8); //set sample size to 16 bit
+    audioFormat.setSampleType(QAudioFormat::UnSignedInt ); //Sample type as usigned integer sample
+    audioFormat.setByteOrder(QAudioFormat::LittleEndian); //Byte order
+    audioFormat.setCodec("audio/pcm"); //set codec as simple audio/pcm
+
+    QAudioDeviceInfo infoIn(QAudioDeviceInfo::defaultInputDevice());
+    if (!infoIn.isFormatSupported(audioFormat))
+    {
+        //Default format not supported - trying to use nearest
+        audioFormat = infoIn.nearestFormat(audioFormat);
+    }
+
+    QAudioDeviceInfo infoOut(QAudioDeviceInfo::defaultOutputDevice());
+
+    if (!infoOut.isFormatSupported(audioFormat))
+    {
+        //Default format not supported - trying to use nearest
+        audioFormat = infoOut.nearestFormat(audioFormat);
+    }
+    createAudioInput();
+    createAudioOutput();
+    toLog("OK");
+}
+
+void MainWindow::createAudioInput()
+{
+    toLog("Create audio input");
+    if (inputDevice != 0) {
+        disconnect(inputDevice, 0, this, 0);
+        inputDevice = 0;
+    }
+
+    audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
+    toLog("OK");
+}
+
+void MainWindow::createAudioOutput()
+{
+    toLog(" Create audio output");
+    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
+    toLog(" OK");
+}
+
+void MainWindow::startAudio()
+{
+    toLog("Audio turn ON");
+    //Audio output device
+    outputDevice = audioOutput->start();
+        //Audio input device
+    inputDevice = audioInput->start();
+    //connect readyRead signal to readMre slot.
+    //Call readmore when audio samples fill in inputbuffer
+    connect(inputDevice, SIGNAL(readyRead()), SLOT(readInput()));
+    toLog("OK");
+}
+
+void MainWindow::stopAudio()
+{
+    toLog("Stop audio");
+    audioInput->stop();
+    audioOutput->stop();
+}

@@ -4,24 +4,17 @@ const int BufferSize = 14096;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , buffer(BufferSize, 0)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     setStyle();
     readSettings();
 
-    inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
-    outputDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
-    audioInput = 0;
-    audioOutput = 0;
-    inputDevice = 0;
-    outputDevice = 0;
+    phone = new UDPPhone(portUDP);
+    phone->initAudio();
 
-    initializeAudio();
-    // startAudio();
     startTCP();
-    // startUDP();
+
     ui->pushButtonAnswer->setDisabled(true);
     ui->pushButtonMute->setDisabled(true);
 
@@ -31,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    delete phone;
     delete pop;
     delete ui;
 }
@@ -108,30 +102,6 @@ void MainWindow::startTCP()
     }
 }
 
-void MainWindow::startUDP()
-{
-    toLog("Starting UDP network");
-    network.setPort(portUDP);
-    network.initUdp();
-
-    connect(&network, &UDPNet::signalData, this, &MainWindow::readUDP);
-    toLog("OK");
-}
-
-void MainWindow::stopUDP()
-{    
-    toLog("Stopping UDP");
-    if(network.isOnline())
-    {
-        network.socketDisconnected();
-        toLog("UDP stopped");
-    }
-    else
-    {
-        toLog("UDP not connected");
-    }
-}
-
 void MainWindow::callAnswer()
 {
     toLog("Call answer");
@@ -139,16 +109,14 @@ void MainWindow::callAnswer()
     {
         isAnswered = true;
         toLog("Start talk");
-        startAudio();
-        startUDP();
+        phone->start();
         sendCommand(ANSWER);
         ui->pushButtonMute->setEnabled(true);
     }
     else
     {
         toLog("Stop talk");
-        stopUDP();
-        stopAudio();
+        phone->stop();
         if(isAnswered)
         {
             sendCommand(END_CALL);
@@ -241,8 +209,7 @@ void MainWindow::socketDisconected()
     disconnect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
     toLog("Socket signals disconnected");
 
-    stopAudio();
-    stopUDP();
+    if(phone->isStarted()) phone->stop();
 
     ui->pushButtonAnswer->setChecked(false);
     ui->pushButtonAnswer->setDisabled(true);
@@ -271,27 +238,6 @@ void MainWindow::connectionTimeout()
     {
         toLog("Not connected");
         socketDisconected();
-    }
-}
-
-void MainWindow::readInput()
-{
-    if(!audioInput)
-        return;
-
-    try {
-        network.sendData(inputDevice->readAll());
-    } catch (...) {
-        toLog("CATCH!!! Read input couldn't send data to network!");
-    }
-}
-
-void MainWindow::readUDP(QByteArray _data)
-{
-    try {
-        outputDevice->write(_data);
-    } catch (...) {
-        toLog("Read UDP could not write to audio device!");
     }
 }
 
@@ -329,76 +275,6 @@ void MainWindow::popDoor2Clicked()
 {
     toLog("Pop door 2 clicked");
     sendCommand(DOOR_2);
-}
-
-// Audio
-
-void MainWindow::initializeAudio()
-{
-    toLog("Initialize audio format");
-    audioFormat.setSampleRate(8000); //set frequency to 8000
-    audioFormat.setChannelCount(1); //set channels to mono
-    audioFormat.setSampleSize(8); //set sample size to 16 bit
-    audioFormat.setSampleType(QAudioFormat::UnSignedInt ); //Sample type as usigned integer sample
-    audioFormat.setByteOrder(QAudioFormat::LittleEndian); //Byte order
-    audioFormat.setCodec("audio/pcm"); //set codec as simple audio/pcm
-
-    QAudioDeviceInfo infoIn(QAudioDeviceInfo::defaultInputDevice());
-    if (!infoIn.isFormatSupported(audioFormat))
-    {
-        //Default format not supported - trying to use nearest
-        audioFormat = infoIn.nearestFormat(audioFormat);
-    }
-
-    QAudioDeviceInfo infoOut(QAudioDeviceInfo::defaultOutputDevice());
-
-    if (!infoOut.isFormatSupported(audioFormat))
-    {
-        //Default format not supported - trying to use nearest
-        audioFormat = infoOut.nearestFormat(audioFormat);
-    }
-    createAudioInput();
-    createAudioOutput();
-    toLog("OK");
-}
-
-void MainWindow::createAudioInput()
-{
-    toLog("Create audio input");
-    if (inputDevice != 0) {
-        disconnect(inputDevice, 0, this, 0);
-        inputDevice = 0;
-    }
-
-    audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
-    toLog("OK");
-}
-
-void MainWindow::createAudioOutput()
-{
-    toLog(" Create audio output");
-    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
-    toLog(" OK");
-}
-
-void MainWindow::startAudio()
-{
-    toLog("Audio turn ON");
-    //Audio output device
-    outputDevice = audioOutput->start();
-        //Audio input device
-    inputDevice = audioInput->start();
-    //connect readyRead signal to readMre slot.
-    //Call readmore when audio samples fill in inputbuffer
-    connect(inputDevice, SIGNAL(readyRead()), SLOT(readInput()));
-    toLog("OK");
-}
-
-void MainWindow::stopAudio()
-{
-    toLog("Stop audio");
-    audioInput->stop();
-    audioOutput->stop();
 }
 
 // Settings
@@ -508,7 +384,8 @@ void MainWindow::on_pushButtonAnswer_clicked()
 
 void MainWindow::on_pushButtonMute_clicked()
 {
-    audioInput->setVolume(!ui->pushButtonMute->isChecked());
+    toLog("Not muted! Button is not active.");
+    // audioInput->setVolume(!ui->pushButtonMute->isChecked());
 }
 
 void MainWindow::on_pushButtonDoor1_clicked()

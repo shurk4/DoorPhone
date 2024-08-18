@@ -18,6 +18,11 @@ set(PROJECT_SOURCES
         mainwindow.h mainwindow.cpp mainwindow.ui
         udpnet.h udpnet.cpp
         popup.h popup.cpp popup.ui
+        settingswindow.h settingswindow.cpp settingswindow.ui
+        res.qrc
+        udpphone.h udpphone.cpp
+
+        deleted_code.txt
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -39,8 +44,6 @@ else()
     else()
         add_executable(ClientPC
             ${PROJECT_SOURCES}
-            settingswindow.h settingswindow.cpp settingswindow.ui
-            res.qrc
         )
     endif()
 endif()
