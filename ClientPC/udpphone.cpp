@@ -1,5 +1,4 @@
 #include "udpphone.h"
-#include "popup.h"
 
 UDPPhone::UDPPhone(QObject *parent)
     : QObject{parent}
@@ -28,7 +27,7 @@ void UDPPhone::stop()
         toLog("Stopping");
         started = false;
         stopUdp();
-        stopAudio();
+        // stopAudio();
         toLog("OK");
     }
 }

@@ -186,10 +186,10 @@ void MainWindow::endCall()
 void MainWindow::preparePhone()
 {
     phone = new UDPPhone(portUDP);
-    phone->initAudio();
     phoneThread = new QThread();
     connect(phoneThread, &QThread::started, phone, &UDPPhone::initAudio);
     connect(phone, &UDPPhone::signalLog, this, &MainWindow::toLog);
+    connect(phone, &UDPPhone::stopped, this, &MainWindow::UDPPhoneStopped);
     phone->moveToThread(phoneThread);
     phoneThread->start(QThread::TimeCriticalPriority);
 }

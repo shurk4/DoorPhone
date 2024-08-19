@@ -109,23 +109,6 @@ class MainWindow : public QMainWindow
 
     void preparePhone();
 
-    // QAudioDeviceInfo inputDeviceInfo;
-    // QAudioDeviceInfo outputDeviceInfo;
-    // QAudioFormat audioFormat;
-    // QAudioInput *audioInput;
-    // QAudioOutput *audioOutput;
-    // QIODevice *inputDevice;
-    // QIODevice *outputDevice;
-    // QByteArray buffer;
-    // int volume = 100;
-
-    // void initializeAudio();
-    // void createAudioInput();
-    // void createAudioOutput();
-
-    // void startAudio();
-    // void stopAudio();
-
     // Settings
     void readSettings();
     void writeSettings();
