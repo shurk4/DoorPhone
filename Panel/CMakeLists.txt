@@ -26,17 +26,14 @@ set(PROJECT_SOURCES
         server.h
         server.cpp
 
-        udpnet.h
-        udpnet.cpp
-
         pins.h
         pins.cpp
 
         callplayer.h
         callplayer.cpp
 
-        phone.h
-        phone.cpp
+        udpphone.h
+        udpphone.cpp
 
         src.qrc
         oldFunc.txt

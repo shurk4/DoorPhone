@@ -11,9 +11,9 @@
 #include <QMediaPlayer>
 
 #include "server.h"
-#include "udpnet.h"
 #include "pins.h"
 #include "callplayer.h"
+#include "udpphone.h"
 
 //enum COMMANDS{
 //    INCOMMING_CALL = 1,
@@ -63,11 +63,11 @@ public slots:
     void clientsListChanged();
     void noClientsConnected();
 
+    void udpPhoneStopped();
+
 private slots:
-    void readInput();
     void reciveMessage(QString _message);
     void reciveData(QString _data);
-    void slotData(QByteArray _data); // Play sound from udp
 
     void on_pushButtonSend_clicked();
 
@@ -91,31 +91,17 @@ private:
     // Lan
     Server *tcpServer;
     QThread *tcpServerThread;
-    UDPNet network;
 
     void startTCP();
-    void startUDP();
-    void stopUDP();
+
     void listInterfaces();
     void listLocalAdresses();
 
     // Audio
-    QAudioDeviceInfo inputDeviceInfo;
-    QAudioDeviceInfo outputDeviceInfo;
-    QAudioFormat audioFormat;
-    QAudioInput *audioInput;
-    QAudioOutput *audioOutput;
-    QIODevice *inputDevice;
-    QIODevice *outputDevice;
+    UDPPhone *phone;
+    QThread *phoneThread;
 
-    int volume = 99;
-
-    void prepareAudio();
-    void initAudio();
-    void createAudioInput();
-    void createAudioOutput();
-    void startAudio();
-    void stopAudio();
+    void preparePhone();
 
     // MP3
     CallPlayer callPlayer;

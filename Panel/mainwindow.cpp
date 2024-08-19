@@ -9,8 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     readSettings();
 
-    prepareAudio();
-    initAudio();
+    preparePhone();
 
     startTCP();
 
@@ -79,43 +78,23 @@ void MainWindow::startTCP()
     toLog("");
     toLog("Starting TCP network");
     toLog(" TCP Server");
-//    server->startServer(ui->lineEditPortTcp->text().toInt());
+
     tcpServer->setPort(ui->lineEditPortTcp->text().toInt());
     connect(tcpServerThread, &QThread::started, tcpServer, &Server::run);
     connect(this, &MainWindow::tcpSend, tcpServer, &Server::sendCommand);
-    connect(tcpServer, &Server::signalSendText, this, &MainWindow::reciveData);
+    connect(tcpServer, &Server::signalSendText, this, &MainWindow::reciveData, Qt::DirectConnection);
     connect(tcpServer, &Server::clientsListChanged, this, &MainWindow::clientsListChanged);
     connect(tcpServer, &Server::noClientsConnected, this, &MainWindow::noClientsConnected);
     tcpServer->moveToThread(tcpServerThread);
-    tcpServerThread->start();
+    tcpServerThread->start(QThread::TimeCriticalPriority);
     toLog(" OK");
-}
-
-void MainWindow::startUDP()
-{
-    toLog("Starting UDP network");
-    network.setPort(ui->lineEditPortUdp->text().toInt());
-    network.initUdp();
-    connect(&network, &UDPNet::signalData, this, &MainWindow::slotData);
-    toLog(" OK");
-    toLog("OK");
-}
-
-void MainWindow::stopUDP()
-{
-    toLog("Stop UDP network");
-    if(network.isOnline())
-    {
-        toLog("is online! Stopping UDP");
-        network.socketDisconnected();
-    }
 }
 
 void MainWindow::listInterfaces()
 {
     toLog("");
     toLog("Listining interfaces");
-    for(auto &i : network.getInterfaces())
+    for(auto &i : phone->getInterfaces())
     {
         ui->comboBoxInterfaces->addItem(i.humanReadableName());
     }
@@ -126,114 +105,23 @@ void MainWindow::listLocalAdresses()
 {
     toLog("");
     toLog("Listeniong local adresses");
-    for(auto i : network.getLocalAdresses())
+    for(auto i : phone->getLocalAdresses())
     {
         ui->listWidgetIPs->addItem(i.toString());
     }
     toLog("OK");
 }
 
-void MainWindow::prepareAudio()
+void MainWindow::preparePhone()
 {
-    toLog("");
-    toLog("Preparing audio system");
-    inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
-    outputDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
-    audioInput = 0;
-    audioOutput = 0;
-    inputDevice = 0;
-    outputDevice = 0;
-    toLog("OK");
+    phone = new UDPPhone(ui->lineEditPortUdp->text().toInt());
+    phoneThread = new QThread();
+    connect(phoneThread, &QThread::started, phone, &UDPPhone::initAudio);
+    connect(phone, &UDPPhone::signalLog, this, &MainWindow::toLog);
+    connect(phone, &UDPPhone::stopped, this, &MainWindow::udpPhoneStopped);
+    phone->moveToThread(phoneThread);
+    phoneThread->start(QThread::TimeCriticalPriority);
 }
-
-void MainWindow::initAudio()
-{
-    toLog("");
-    toLog("Initialize audio format");
-    audioFormat.setSampleRate(8000); //set frequency to 8000
-    audioFormat.setChannelCount(1); //set channels to mono
-    audioFormat.setSampleSize(8); //set sample size to 16 bit
-    audioFormat.setSampleType(QAudioFormat::UnSignedInt ); //Sample type as usigned integer sample
-    audioFormat.setByteOrder(QAudioFormat::LittleEndian); //Byte order
-    audioFormat.setCodec("audio/pcm"); //set codec as simple audio/pc434
-
-    QAudioDeviceInfo infoIn(QAudioDeviceInfo::defaultInputDevice());
-    if (!infoIn.isFormatSupported(audioFormat))
-    {
-        //Default format not supported - trying to use nearest
-        audioFormat = infoIn.nearestFormat(audioFormat);
-    }
-
-    QAudioDeviceInfo infoOut(QAudioDeviceInfo::defaultOutputDevice());
-
-    if (!infoOut.isFormatSupported(audioFormat))
-    {
-        //Default format not supported - trying to use nearest
-        audioFormat = infoOut.nearestFormat(audioFormat);
-    }
-    createAudioInput();
-    createAudioOutput();
-
-    toLog("Audio is initialized");
-}
-
-void MainWindow::createAudioInput()
-{
-    toLog("");
-    toLog("Create audio input");
-    if (inputDevice != 0) {
-        disconnect(inputDevice, 0, this, 0);
-        inputDevice = 0;
-    }
-    audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);    
-    toLog("OK");
-}
-
-void MainWindow::createAudioOutput()
-{
-    toLog("");
-    toLog("Create audio output");
-    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
-    toLog("OK");
-}
-
-void MainWindow::startAudio()
-{
-    toLog("");
-    toLog("Audio turn on");
-    //Audio output device
-    audioOutput->setVolume(100);
-    outputDevice = audioOutput->start();
-        //Audio input device
-    audioInput->setVolume(100);
-    inputDevice = audioInput->start();
-    //connect readyRead signal to readMre slot.
-    //Call readmore when audio samples fill in inputbuffer
-    connect(inputDevice, &QIODevice::readyRead, this, &MainWindow::readInput);
-    toLog("Current speaker volume: " + QString::number(audioOutput->volume()));
-    toLog("Current microphone voluve: " + QString::number(audioInput->volume()));
-
-    toLog("OK");
-}
-
-void MainWindow::stopAudio()
-{
-    toLog("");
-    toLog("Audio turn off");
-    if (inputDevice != 0)
-    {
-        disconnect(inputDevice, 0, this, 0);
-        inputDevice = 0;
-        toLog(" microphone is off");
-    }
-    if(outputDevice != 0)
-    {
-        outputDevice = 0;
-        toLog(" speakers is off");
-    }
-    toLog("OK");
-}
-
 
 void MainWindow::initGPIO()
 {
@@ -292,23 +180,17 @@ void MainWindow::sendCommand(int _com)
 {
     toLog("Send command: " + QString::number(_com));
     emit tcpSend(_com);
-//    tcpServer->lanSendCommand(_com);
 }
 
 void MainWindow::incommingCallStart()
 {
     toLog("Incomming call start");
-    if(isIncommingCall) return;
-
-//    tcpServer->isCalling == true;
+    if(isIncommingCall || isAnswered) return;
     isIncommingCall = true;
 
     callMusicStart();
     sendCommand(INCOMMING_CALL);
-    timer = new QTimer;
-    connect(timer, &QTimer::timeout, this, &MainWindow::incommingCallTimerShot);
-    int timerTime = ui->lineEditCallTimer->text().toInt();
-    timer->start(timerTime);
+    QTimer::singleShot(ui->lineEditCallTimer->text().toInt(), this, &MainWindow::incommingCallTimerShot);
     ui->pushButtonCall->setChecked(true);
 }
 
@@ -318,10 +200,8 @@ void MainWindow::incommingCallStop()
     if(isIncommingCall)
     {
         callMusicStop();
-        timer->disconnect();
-        delete timer;
         tcpServer->isCalling = false;
-//        server.startCheckSocketsTimer();
+
         sendCommand(END_CALL);
         isIncommingCall = false;
         ui->pushButtonCall->setChecked(false);
@@ -339,24 +219,18 @@ void MainWindow::answer()
 
     isAnswered = true;
     ui->pushButtonTalk->setChecked(true);
-    timer->disconnect();
-    toLog("timer disconnected");
-    delete timer;
     toLog("Timer deleted");
-    startAudio();
-    startUDP();
+    phone->start();
     toLog("Calling answered");
 }
 
 void MainWindow::stopCall()
 {
     tcpServer->isCalling = false;
-//    server.startCheckSocketsTimer();
     toLog("Calling end");
     ui->pushButtonTalk->setChecked(false);
 
-    stopAudio();
-    stopUDP();
+    phone->stop();
 
     ui->pushButtonCall->setChecked(false);
     isIncommingCall = false;
@@ -400,25 +274,16 @@ void MainWindow::door2isClosed()
     door2();
 }
 
-void MainWindow::readInput()
-{
-    //Return if audio input is null
-    if(!audioInput){
-        return;
-    }
-
-    network.sendData(inputDevice->readAll());
-}
-
 void MainWindow::initCallPlayer()
 {
     toLog("Init call player");
-    connect(this, &MainWindow::callMusicStopSignal, &callPlayer, &CallPlayer::stop);
-    connect(this, &MainWindow::callMusicStartSignal, &callPlayer, &CallPlayer::start);
+    connect(this, &MainWindow::callMusicStopSignal, &callPlayer, &CallPlayer::stop, Qt::DirectConnection);
+    connect(this, &MainWindow::callMusicStartSignal, &callPlayer, &CallPlayer::start, Qt::DirectConnection);
     connect(&callPlayerThread, &QThread::started, &callPlayer, &CallPlayer::run);
 
     callPlayer.moveToThread(&callPlayerThread);
     callPlayerThread.start();
+
     showCallsPlaylist();
 }
 
@@ -459,11 +324,6 @@ void MainWindow::reciveData(QString _data)
         toLog("Is command");
         applyCommand(_data.midRef(1, _data.size() - 1).toInt());
     }
-}
-
-void MainWindow::slotData(QByteArray _data)
-{
-    outputDevice->write(_data);
 }
 
 void MainWindow::on_pushButtonSend_clicked()
@@ -510,6 +370,11 @@ void MainWindow::noClientsConnected()
         stopCall();
     }
     toLog("Wiating new clients");
+}
+
+void MainWindow::udpPhoneStopped()
+{
+
 }
 
 void MainWindow::on_pushButton1_clicked()
