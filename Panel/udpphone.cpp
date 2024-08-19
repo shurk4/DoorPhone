@@ -23,14 +23,11 @@ void UDPPhone::start()
 
 void UDPPhone::stop()
 {
-    if(started)
-    {
-        toLog("Stopping");
-        started = false;
-        stopUdp();
-        stopAudio();
-        toLog("OK");
-    }
+    toLog("Stopping");
+    started = false;
+    stopUdp();
+    stopAudio();
+    toLog("OK");
 }
 
 bool UDPPhone::isStarted()

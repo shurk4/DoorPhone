@@ -41,6 +41,7 @@ ________________________________________________________________________________
 #include <QAudioOutput>
 #include <QTimer>
 #include <QFile>
+#include <QThread>
 
 #include <QCloseEvent>
 #include <QSystemTrayIcon>
@@ -48,7 +49,6 @@ ________________________________________________________________________________
 #include <QMenu>
 #include <QStyle>
 
-#include "udpnet.h"
 #include "settingswindow.h"
 #include "popup.h"
 #include "udpphone.h"
@@ -76,7 +76,6 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    void toLog(QString _log);
     void setStyle();
 
     // Network
@@ -106,6 +105,9 @@ class MainWindow : public QMainWindow
 
     // Sound
     UDPPhone *phone;
+    QThread *phoneThread;
+
+    void preparePhone();
 
     // QAudioDeviceInfo inputDeviceInfo;
     // QAudioDeviceInfo outputDeviceInfo;
@@ -153,12 +155,15 @@ private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason _reason);
 
 public slots:
+    void toLog(QString _log);
     void applySettings();
 
     void socketReady();
     void socketConnected();
     void socketDisconected();
     void connectionTimeout();
+
+    void UDPPhoneStopped();
 
     // void readUDP(QByteArray _data);
 

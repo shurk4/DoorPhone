@@ -16,7 +16,7 @@ set(PROJECT_SOURCES
         main.cpp
 
         mainwindow.h mainwindow.cpp mainwindow.ui
-        udpnet.h udpnet.cpp
+
         popup.h popup.cpp popup.ui
         settingswindow.h settingswindow.cpp settingswindow.ui
         res.qrc

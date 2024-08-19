@@ -10,8 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     setStyle();
     readSettings();
 
-    phone = new UDPPhone(portUDP);
-    phone->initAudio();
+    preparePhone();
 
     startTCP();
 
@@ -184,6 +183,17 @@ void MainWindow::endCall()
     callAnswer();
 }
 
+void MainWindow::preparePhone()
+{
+    phone = new UDPPhone(portUDP);
+    phone->initAudio();
+    phoneThread = new QThread();
+    connect(phoneThread, &QThread::started, phone, &UDPPhone::initAudio);
+    connect(phone, &UDPPhone::signalLog, this, &MainWindow::toLog);
+    phone->moveToThread(phoneThread);
+    phoneThread->start(QThread::TimeCriticalPriority);
+}
+
 void MainWindow::socketReady()
 {
     QString data = socket->readAll();
@@ -239,6 +249,11 @@ void MainWindow::connectionTimeout()
         toLog("Not connected");
         socketDisconected();
     }
+}
+
+void MainWindow::UDPPhoneStopped()
+{
+    endCall();
 }
 
 void MainWindow::toMainWindow()
