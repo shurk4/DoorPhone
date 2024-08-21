@@ -36,7 +36,6 @@ set(PROJECT_SOURCES
         udpphone.cpp
 
         src.qrc
-        oldFunc.txt
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

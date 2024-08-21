@@ -27,6 +27,7 @@ signals:
 
 public:
     CallPlayer();
+    ~CallPlayer();
 
     void setTrackIndex(int idx);
 };

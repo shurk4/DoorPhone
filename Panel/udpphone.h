@@ -41,6 +41,7 @@ class UDPPhone : public QObject
 public:
     explicit UDPPhone(QObject *parent = nullptr);
     UDPPhone(uint _port, QObject *parent = nullptr);
+    ~UDPPhone();
 
     void start();
     void stop();

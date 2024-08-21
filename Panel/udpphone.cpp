@@ -11,6 +11,15 @@ UDPPhone::UDPPhone(uint _port, QObject *parent) : port(_port)
     toLog("UDP Phone created with port: " + QString::number(port));
 }
 
+UDPPhone::~UDPPhone()
+{
+    udpSocket->deleteLater();
+    audioInput->deleteLater();
+    audioOutput->deleteLater();
+    inputDevice->deleteLater();
+    outputDevice->deleteLater();
+}
+
 void UDPPhone::start()
 {
     toLog("Starting");
@@ -163,14 +172,14 @@ void UDPPhone::createAudioInput()
         inputDevice = 0;
     }
 
-    audioInput = new QAudioInput(inputDeviceInfo, audioFormat, this);
+    audioInput = new QAudioInput(inputDeviceInfo, audioFormat);
     toLog("OK");
 }
 
 void UDPPhone::createAudioOutput()
 {
     toLog("Create audio output");
-    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat, this);
+    audioOutput = new QAudioOutput(outputDeviceInfo, audioFormat);
     toLog("OK");
 }
 
@@ -198,7 +207,9 @@ void UDPPhone::stopAudio()
 void UDPPhone::sendUdpSound()
 {
     if(!audioInput)
+    {
         return;
+    }
 
     if(online)
     {

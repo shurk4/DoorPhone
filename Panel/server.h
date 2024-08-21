@@ -10,15 +10,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QMap>
-
-struct SocketData
-{
-    SocketData();
-//    SocketData(SocketData &_other);
-    ~SocketData();
-    QTcpSocket *socket = nullptr;
-    int pingTimes = 0;
-};
+#include <QThread>
 
 enum COMMANDS{
     INCOMMING_CALL = 1,
@@ -41,10 +33,6 @@ class Server : public QTcpServer
     uint port = 5555;
     QMap<QTcpSocket*, int> sockets;
     QByteArray data;
-    SocketData sData;
-
-    QTimer *pingTimer;
-    int pingTime = 5000;
 
 public:
     Server();
@@ -54,18 +42,16 @@ public:
     void closeEvent(QCloseEvent *event);
 
     // отправить сообщение в лог и по сети
-    void log(const QString msg);
+    void toLog(const QString msg);
 
     void lanSendText(const QString text);
     void lanSendCommand(int _com);
 
-    QStringList getClientList();
-    void startCheckSocketsTimer();
+    QStringList getClientsList();
 
     bool isCalling = false;
 
 public slots:
-    void checkSockets();
     // Запуск сервера
     void run();
     // Обработка входящих соединений
@@ -77,10 +63,12 @@ public slots:
     // Отключение клиента
     void socketDisconected();
     void sendCommand(int _com);
+    // Start check sockets data timer
+    void checkSocketsData();
 
 signals:
-    void signalSendText(const QString);
-    void signalSendBytes(QByteArray);
+    void signalData(const QString);
+    void signalLog(const QString);
 
     void clientsListChanged();
     void noClientsConnected();

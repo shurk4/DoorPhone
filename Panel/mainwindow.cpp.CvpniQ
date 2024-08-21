@@ -75,15 +75,14 @@ void MainWindow::startTCP()
 {
     toLog("");
     toLog("Starting TCP network");
-    toLog(" TCP Server");
     tcpServer.setPort(ui->lineEditPortTcp->text().toInt());
-    connect(this, &MainWindow::tcpSend, &tcpServer, &Server::sendCommand);
-    connect(&checkTCPTimer, &QTimer::timeout, &tcpServer, &Server::checkSocketsData);
-    connect(&tcpServer, &Server::signalData, this, &MainWindow::reciveData, Qt::DirectConnection);
-    connect(&tcpServer, &Server::signalLog, this, &MainWindow::toLog);
-    connect(&tcpServer, &Server::clientsListChanged, this, &MainWindow::clientsListChanged);
-    connect(&tcpServer, &Server::noClientsConnected, this, &MainWindow::noClientsConnected);
-
+    toLog("connecting slots");
+    connect(this, &MainWindow::tcpSend, &tcpServer, &TcpServerHandler::slotCommandToTCP);
+    connect(&tcpServer, &TcpServerHandler::signalDataFromTCP, this, &MainWindow::reciveData, Qt::DirectConnection);
+    connect(&tcpServer, &TcpServerHandler::signalLog, this, &MainWindow::toLog);
+    connect(&tcpServer, &TcpServerHandler::signalClientListChanged, this, &MainWindow::clientsListChanged);
+    connect(&tcpServer, &TcpServerHandler::signalNoClientsConnected, this, &MainWindow::noClientsConnected);
+    toLog("run server");
     tcpServer.run();
     toLog(" OK");
 }
@@ -184,7 +183,7 @@ void MainWindow::incommingCallStart()
     callMusicStart();
     sendCommand(INCOMMING_CALL);
     callTimer.start(ui->lineEditCallTimer->text().toInt());
-    checkTCPTimer.start(1000);
+//    ui->pushButtonCall->setChecked(true);
 }
 
 void MainWindow::incommingCallStop()
@@ -192,19 +191,22 @@ void MainWindow::incommingCallStop()
     toLog("Incomming call stop");
     if(isIncommingCall && !isAnswered)
     {
-        checkTCPTimer.stop();
         callTimer.stop();
         callMusicStop();
         isCalling = false;
 
         sendCommand(END_CALL);
         isIncommingCall = false;
+//        ui->pushButtonCall->setChecked(false);
     }
+//    else
+//    {
+//        ui->pushButtonCall->setChecked(true);
+//    }
 }
 
 void MainWindow::answer()
-{
-    checkTCPTimer.stop();
+{    
     callTimer.stop();
     toLog("Answer call");
     callMusicStop();

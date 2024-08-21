@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QTimer>
 #include <QMediaPlayer>
+#include <QtConcurrent/QtConcurrent>
 
 #include "server.h"
 #include "pins.h"
@@ -56,14 +57,14 @@ signals:
     void tcpSend(int);
     void tcpSendText(QString);
 
+    void checkTCPSockData();
+
 public slots:
     void btnStateChanged(int _pin, int _state);
     void incommingCallTimerShot();
 
     void clientsListChanged();
     void noClientsConnected();
-
-    void udpPhoneStopped();
 
 private slots:
     void reciveMessage(QString _message);
@@ -89,8 +90,10 @@ private:
     void toLog(QString _log);
 
     // Lan
-    Server *tcpServer;
-    QThread *tcpServerThread;
+    Server tcpServer;
+    QTimer checkTCPTimer;
+
+    bool isCalling = false;
 
     void startTCP();
 
@@ -98,12 +101,12 @@ private:
     void listLocalAdresses();
 
     // Audio
-    UDPPhone *phone;
-    QThread *phoneThread;
+    UDPPhone phone;
 
     void preparePhone();
 
     // MP3
+    QTimer callTimer;
     CallPlayer callPlayer;
     QThread callPlayerThread;
 
@@ -121,7 +124,6 @@ private:
     void initGPIO();
 
     // Control
-    QTimer *timer;
     bool isIncommingCall = false;
     bool isAnswered = false;
     void applyCommand(int _com);

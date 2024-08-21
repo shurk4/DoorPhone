@@ -15,6 +15,12 @@ CallPlayer::CallPlayer()
     qDebug() << "--- OK!";
 }
 
+CallPlayer::~CallPlayer()
+{
+    player->deleteLater();
+    playlist->deleteLater();
+}
+
 void CallPlayer::setTrackIndex(int idx)
 {
     playlist->setCurrentIndex(idx);
@@ -44,14 +50,12 @@ void CallPlayer::start(bool _loop)
         playlist->setPlaybackMode(QMediaPlaylist::CurrentItemOnce);
     }
     qDebug() << "--- Start call sound";
-//    player->play();
     emit signalPlay();
 }
 
 void CallPlayer::stop()
 {
     qDebug() << "--- Stop call sound";
-//    player->stop();
     emit signalStop();
 }
 
