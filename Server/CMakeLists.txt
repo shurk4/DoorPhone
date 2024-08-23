@@ -18,20 +18,26 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Multimedia)
 add_executable(Server
   main.cpp
 
-  server.h
-  server.cpp
-
   doorphone.h
   doorphone.cpp
 
   threadclass1.h
   threadclass1.cpp
 
-  threadclass2.h
-  threadclass2.cpp
+  tcpHandler.h
+  tcpHandler.cpp
 
-  tcpclass.h
-  tcpclass.cpp
+  server.h
+  server.cpp
+
+  phoneHandler.h
+  phoneHandler.cpp
+
+  callplayer.h
+  callplayer.cpp
+
+  udpphone.h
+  udpphone.cpp
 )
 target_link_libraries(Server Qt${QT_VERSION_MAJOR}::Core
                              Qt${QT_VERSION_MAJOR}::Multimedia

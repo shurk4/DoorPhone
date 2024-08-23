@@ -6,9 +6,9 @@
 #include <QThread>
 #include <QTimer>
 
-#include "tcpclass.h"
+#include "tcpHandler.h"
 #include "threadclass1.h"
-#include "threadclass2.h"
+#include "phoneHandler.h"
 
 class DoorPhone : public QObject
 {
@@ -16,11 +16,12 @@ class DoorPhone : public QObject
 
     ThreadClass1 class1;
     QThread class1Thread;
-//    ThreadClass2 class2;
-//    QThread class2Thread;
 
-    TCPClass tcp;
+    TCPHandler tcp;
     QThread tcpThread;
+
+    PhoneHandler phone;
+    QThread phoneThread;
 
     void runTest();
 
@@ -29,8 +30,10 @@ public:
     void runThreads();
 
 signals:
-    void callStart(); // temp
-    void callStop(); // temp
+    void signalCallStart(); // temp
+    void signalCallStop(); // temp
+    void signalPhoneStart();
+    void signalPhoneStop();
 
 public slots:
     void toLog(QString _log);

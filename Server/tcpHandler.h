@@ -1,5 +1,5 @@
-#ifndef TCPCLASS_H
-#define TCPCLASS_H
+#ifndef TCPHandler_H
+#define TCPHandler_H
 
 #include <QObject>
 #include <QDebug>
@@ -23,7 +23,7 @@ enum COMMANDS{
     PING = 2048
 };
 
-class TCPClass : public QObject
+class TCPHandler : public QObject
 {
     Q_OBJECT
 
@@ -35,14 +35,15 @@ class TCPClass : public QObject
     void sendCommand(const int _com);
 
 public:
-    explicit TCPClass(QObject *parent = nullptr);
+    explicit TCPHandler(QObject *parent = nullptr);
 
     void setPort(const int _port);
 
 signals:
     void signalLog(QString);
-    void signalSendData(QString);
+    void signalToTcp(QString);
 
+    // Parsed commands signals
     void signalStartPhone();
     void signalStopPhone();
     void signalOpenDoor(int); // and door number
@@ -54,8 +55,8 @@ public slots:
 
     void slotClientList();
 
-    void slotData(const QString _data);
-    void slotSendData(const QString _data);
+    void slotFromTCP(const QString _data);
+    void slotToTCP(const QString _data);
 
     void slotCallStart();
     void slotCallStop();
@@ -63,4 +64,4 @@ public slots:
 
 };
 
-#endif // TCPCLASS_H
+#endif // TCPHandler_H

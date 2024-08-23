@@ -2,21 +2,32 @@
 
 void DoorPhone::runThreads()
 {
-    connect(&class1, &ThreadClass1::sendData, &tcp, &TCPClass::slotSendData); // send to TCP
+    connect(&class1, &ThreadClass1::sendData, &tcp, &TCPHandler::slotToTCP); // send to TCP
     connect(&class1Thread, &QThread::started, &class1, &ThreadClass1::run);
 
-    connect(&tcp, &TCPClass::signalLog, this, &DoorPhone::toLog); // LOG
-    connect(&tcpThread, &QThread::started, &tcp, &TCPClass::run); // Start TCP Thread
+    connect(&tcp, &TCPHandler::signalLog, this, &DoorPhone::toLog); // LOG
+    connect(&tcpThread, &QThread::started, &tcp, &TCPHandler::run); // Start TCP Thread
+
+    connect(&phone, &PhoneHandler::signalLog, this, &DoorPhone::toLog);
+    connect(&phoneThread, &QThread::started, &phone, &PhoneHandler::start);
 
     // commands temp signals
-    connect(this, &DoorPhone::callStart, &tcp, &TCPClass::slotCallStart);
-    connect(this, &DoorPhone::callStop, &tcp, &TCPClass::slotCallStop);
+    connect(this, &DoorPhone::signalCallStart, &tcp, &TCPHandler::slotCallStart);
+    connect(this, &DoorPhone::signalCallStop, &tcp, &TCPHandler::slotCallStop);
+
+
+    // Direct signals between threads
+    connect(&tcp, &TCPHandler::signalStartPhone, &phone, &PhoneHandler::slotStartPhone);
+    connect(&tcp, &TCPHandler::signalStopPhone, &phone, &PhoneHandler::slotStopPhone);
 
     class1.moveToThread(&class1Thread);
     class1Thread.start();
 
     tcp.moveToThread(&tcpThread);
     tcpThread.start();
+
+    phone.moveToThread(&phoneThread);
+    phoneThread.start();
 
     runTest();
 }
@@ -28,12 +39,12 @@ void DoorPhone::toLog(QString _log)
 
 void DoorPhone::stopCalling()
 {
-    emit callStop();
+    emit signalCallStop();
 }
 
 void DoorPhone::runTest()
 {
-    emit callStart();
+    emit signalCallStart();
     QTimer::singleShot(10000, this, &DoorPhone::stopCalling);
 }
 
