@@ -40,6 +40,8 @@ public:
     void setPort(const int _port);
 
 signals:
+    void signalSetPort(int);
+    void signalStartServer();
     void signalLog(QString);
     void signalToTcp(QString);
 

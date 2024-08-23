@@ -37,7 +37,6 @@ public:
     Server();
     ~Server();
 
-    void setPort(const uint _port);
     void closeEvent(QCloseEvent *event);
 
     // отправить сообщение в лог и по сети
@@ -52,6 +51,7 @@ public:
 
 public slots:
     // Запуск сервера
+    void setPort(const uint _port);
     void run();
     // Обработка входящих соединений
     void incomingConnection(const qintptr socketDescriptor);

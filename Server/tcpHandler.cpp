@@ -56,7 +56,6 @@ void TCPHandler::readSettings()
 void TCPHandler::initServer()
 {
     toLog("Starting TCP server");
-    server.setPort(port);
 
     connect(&server, &Server::signalData, this, &TCPHandler::slotFromTCP, Qt::DirectConnection);
     connect(&server, &Server::signalLog, this, &TCPHandler::toLog);
@@ -64,7 +63,11 @@ void TCPHandler::initServer()
 
     connect(this, &TCPHandler::signalToTcp, &server, &Server::sendData);
 
-    server.run();
+    connect(this, &TCPHandler::signalSetPort, &server, &Server::setPort);
+    connect(this, &TCPHandler::signalStartServer, &server, &Server::run);
+
+    emit signalSetPort(port);
+    emit signalStartServer();
 }
 
 void TCPHandler::sendCommand(const int _com)
