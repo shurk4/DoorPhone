@@ -109,7 +109,7 @@ void MainWindow::callAnswer()
         isAnswered = true;
         toLog("Start talk");
         phone->start();
-        sendCommand(ANSWER);
+        sendCommand(START_PHONE);
         ui->pushButtonMute->setEnabled(true);
     }
     else
@@ -118,7 +118,7 @@ void MainWindow::callAnswer()
         phone->stop();
         if(isAnswered)
         {
-            sendCommand(END_CALL);
+            sendCommand(STOP_PHONE);
             isAnswered = false;
         }
         ui->pushButtonAnswer->setChecked(false);
@@ -131,12 +131,12 @@ void MainWindow::callAnswer()
 void MainWindow::applyCommand(int _com)
 {
     toLog("Apply command: " + QString::number(_com));
-    if(_com & INCOMMING_CALL)
+    if(_com & START_CALL)
     {
             showHidePopUp();
         ui->pushButtonAnswer->setEnabled(true);
     }
-    if(_com & END_CALL || _com & ANSWER)
+    if(_com & STOP_CALL || _com & START_PHONE)
     {
         if(!ui->pushButtonAnswer->isChecked())
         {
@@ -170,6 +170,7 @@ void MainWindow::sendCommand(int _com)
     if(connected & socket->isWritable())
     {
         socket->write(command.toUtf8());
+        socket->flush();
         toLog("Command sended");
     }
     else toLog("Not connected");
