@@ -6,36 +6,56 @@
 #include <QThread>
 #include <QTimer>
 
-#include "tcpclass.h"
+#include "pins.h"
+#include "tcpHandler.h"
 #include "threadclass1.h"
-#include "threadclass2.h"
+#include "phoneHandler.h"
 
 class DoorPhone : public QObject
 {
     Q_OBJECT
 
-    ThreadClass1 class1;
-    QThread class1Thread;
-//    ThreadClass2 class2;
-//    QThread class2Thread;
+//    ThreadClass1 class1;
+//    QThread class1Thread;
 
-    TCPClass tcp;
+    Pins gpio;
+    QThread pinsLookupThread;
+    QVector<int>inputPins;
+//    QVector<int>outputPins;
+
+    int buttonCallPin = 11;
+    int door1Pin = 12;
+    int door2Pin = 14;
+    void initGPIO();
+
+    TCPHandler tcp;
     QThread tcpThread;
 
-    void runTest();
+    PhoneHandler phone;
+    QThread phoneThread;
+
+    bool calling = false;
+    bool answered = false;
+
+//    void runTest();
 
 public:
     explicit DoorPhone(QObject *parent = nullptr);
     void runThreads();
 
 signals:
-    void callStart(); // temp
-    void callStop(); // temp
+    void signalStopGPIO();
+
+    void signalPhoneStart();
+    void signalPhoneStop();
 
 public slots:
     void toLog(QString _log);
 
-    void stopCalling(); // temp
+    void stopCalling(); // connect to tcpHandler
+    void callStopped(); // connect to callPlayer
+
+    void pinStateChanged(int _pin, int _state); // connect to gpio
 
 };
 
