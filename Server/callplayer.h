@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
+#include <QFile>
+#include <QBuffer>
 #include <QThread>
 
 class CallPlayer : public QObject
@@ -12,6 +14,7 @@ class CallPlayer : public QObject
 
     QMediaPlayer *player;
     QMediaPlaylist *playlist;
+    QBuffer *ringtoneBuf;
 
 public slots:
     void run();
@@ -23,6 +26,7 @@ public slots:
 signals:
     void signalPlay();
     void signalStop();
+    void signalSetPlaylist(QMediaPlaylist*);
 
 
 public:

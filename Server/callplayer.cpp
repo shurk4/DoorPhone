@@ -2,7 +2,6 @@
 
 CallPlayer::CallPlayer()
 {
-
     qDebug() << "--- Call player starting!";
     player = new QMediaPlayer();
     playlist = new QMediaPlaylist();
@@ -30,15 +29,18 @@ void CallPlayer::run()
 {
     qDebug() << "--- Call player started in thread: " << QThread::currentThreadId();
 
-    playlist->setCurrentIndex(3);
+    playlist->setCurrentIndex(1);
 
-    player->setPlaylist(playlist);
-    connect(this, &CallPlayer::signalPlay, player, &QMediaPlayer::play);
-    connect(this, &CallPlayer::signalStop, player, &QMediaPlayer::stop);
+    connect(this, &CallPlayer::signalPlay, player, &QMediaPlayer::play, Qt::DirectConnection);
+    connect(this, &CallPlayer::signalStop, player, &QMediaPlayer::stop, Qt::DirectConnection);
+    connect(this, &CallPlayer::signalSetPlaylist, player, &QMediaPlayer::setPlaylist);
+
+    emit signalSetPlaylist(playlist);
 }
 
 void CallPlayer::start(bool _loop)
 {    
+    qDebug() << "--- Start call sound";
     if(_loop)
     {
         qDebug() << "Start in loop";
@@ -49,7 +51,6 @@ void CallPlayer::start(bool _loop)
         qDebug() << "Start once";
         playlist->setPlaybackMode(QMediaPlaylist::CurrentItemOnce);
     }
-    qDebug() << "--- Start call sound";
     emit signalPlay();
 }
 

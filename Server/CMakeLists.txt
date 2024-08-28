@@ -38,6 +38,11 @@ add_executable(Server
 
   udpphone.h
   udpphone.cpp
+
+  pins.h
+  pins.cpp
+
+  res.qrc
 )
 target_link_libraries(Server Qt${QT_VERSION_MAJOR}::Core
                              Qt${QT_VERSION_MAJOR}::Multimedia

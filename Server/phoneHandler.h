@@ -15,12 +15,12 @@ class PhoneHandler : public QObject
     Q_OBJECT
 
     CallPlayer doorbell;
+//    QThread doorbellThread;
+
     QTimer callTimer;
     int callTimerTime = 10000;
-    bool calling = false;
 
     UDPPhone phone;
-    bool answered = false;
 
     void readSettings();
 
@@ -29,6 +29,11 @@ public:
 
 signals:
     void signalLog(QString);
+    void signalCallStart(bool);
+    void signalCallStop();
+    void signalStartCallTimer(int);
+    void signalStopCallTimer();
+
 
 public slots:
     void toLog(QString _log);
