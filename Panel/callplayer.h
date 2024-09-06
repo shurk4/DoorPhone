@@ -18,9 +18,11 @@ public slots:
     void start(bool _loop);
     void stop();
 
+    void setTrackIndex(int idx);
     int getPlaylistSize();
 
 signals:
+    void setPlayList(QMediaPlaylist*);
     void signalPlay();
     void signalStop();
 
@@ -28,8 +30,6 @@ signals:
 public:
     CallPlayer();
     ~CallPlayer();
-
-    void setTrackIndex(int idx);
 };
 
 #endif // CALLPLAYER_H

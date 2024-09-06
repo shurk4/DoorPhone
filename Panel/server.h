@@ -12,18 +12,33 @@
 #include <QMap>
 #include <QThread>
 
+//enum COMMANDS{ // old commands
+//    INCOMMING_CALL = 1,
+//    END_CALL = 2,
+//    ANSWER = 4,
+//    DOOR_1 = 8,
+//    DOOR_2 = 16,
+//    DISCONNECT = 32,
+//    DOOR_1_IS_OPEN = 64,
+//    DOOR_2_IS_OPEN = 128,
+//    DOOR_1_IS_CLOSED = 256,
+//    DOOR_2_IS_CLOSED = 512,
+//    PING = 1024
+//};
+
 enum COMMANDS{
-    INCOMMING_CALL = 1,
-    END_CALL = 2,
-    ANSWER = 4,
-    DOOR_1 = 8,
-    DOOR_2 = 16,
-    DISCONNECT = 32,
-    DOOR_1_IS_OPEN = 64,
-    DOOR_2_IS_OPEN = 128,
-    DOOR_1_IS_CLOSED = 256,
-    DOOR_2_IS_CLOSED = 512,
-    PING = 1024
+    START_CALL = 1,
+    STOP_CALL = 2,
+    START_PHONE = 4,
+    STOP_PHONE = 8,
+    DOOR_1 = 16,
+    DOOR_2 = 32,
+    DISCONNECT = 64,
+    DOOR_1_IS_OPEN = 128,
+    DOOR_2_IS_OPEN = 256,
+    DOOR_1_IS_CLOSED = 512,
+    DOOR_2_IS_CLOSED = 1024,
+    PING = 2048
 };
 
 class Server : public QTcpServer
@@ -38,7 +53,6 @@ public:
     Server();
     ~Server();
 
-    void setPort(const uint _port);
     void closeEvent(QCloseEvent *event);
 
     // отправить сообщение в лог и по сети
@@ -53,6 +67,7 @@ public:
 
 public slots:
     // Запуск сервера
+    void setPort(const uint _port);
     void run();
     // Обработка входящих соединений
     void incomingConnection(const qintptr socketDescriptor);
