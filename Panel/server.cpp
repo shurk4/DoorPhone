@@ -152,6 +152,7 @@ void Server::socketReady()
         if(socket.key()->state() == QAbstractSocket::ConnectedState && socket.key()->bytesAvailable())
         {
             emit signalData(socket.key()->readAll());
+            return;
         }
     }
 }

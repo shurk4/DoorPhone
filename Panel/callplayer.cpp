@@ -32,9 +32,11 @@ void CallPlayer::run()
 
     playlist->setCurrentIndex(3);
 
-    player->setPlaylist(playlist);
+//    player->setPlaylist(playlist);
+    connect(this, &CallPlayer::setPlayList, player, &QMediaPlayer::setPlaylist);
     connect(this, &CallPlayer::signalPlay, player, &QMediaPlayer::play);
     connect(this, &CallPlayer::signalStop, player, &QMediaPlayer::stop);
+    emit setPlayList(playlist);
 }
 
 void CallPlayer::start(bool _loop)

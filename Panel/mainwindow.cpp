@@ -76,13 +76,19 @@ void MainWindow::startTCP()
     toLog("");
     toLog("Starting TCP network");
     toLog(" TCP Server");
-    tcpServer.setPort(ui->lineEditPortTcp->text().toInt());
+//    tcpServer.setPort(ui->lineEditPortTcp->text().toInt());
+    connect(this, &MainWindow::tcpSetPort, &tcpServer, &Server::setPort);
     connect(this, &MainWindow::tcpSend, &tcpServer, &Server::sendCommand);
-    connect(&checkTCPTimer, &QTimer::timeout, &tcpServer, &Server::checkSocketsData);
+//    connect(&checkTCPTimer, &QTimer::timeout, &tcpServer, &Server::checkSocketsData);
     connect(&tcpServer, &Server::signalData, this, &MainWindow::reciveData, Qt::DirectConnection);
     connect(&tcpServer, &Server::signalLog, this, &MainWindow::toLog);
     connect(&tcpServer, &Server::clientsListChanged, this, &MainWindow::clientsListChanged);
     connect(&tcpServer, &Server::noClientsConnected, this, &MainWindow::noClientsConnected);
+
+    connect(&tcpServerThread, &QThread::started, &tcpServer, &Server::run);
+    emit tcpSetPort(ui->lineEditPortTcp->text().toInt());
+//    tcpServer.moveToThread(&tcpServerThread);
+//    tcpServerThread.start();
 
     tcpServer.run();
     toLog(" OK");
@@ -141,17 +147,17 @@ void MainWindow::initGPIO()
 void MainWindow::applyCommand(int _com)
 {
     toLog("Apply command: " + QString::number(_com));
-    if(_com & ANSWER)
+    if(_com & START_PHONE)
     {
         if(isIncommingCall & !isAnswered)
         {
             isAnswered = true;
             isIncommingCall = false;
             answer();
-            sendCommand(ANSWER);
+            sendCommand(START_PHONE);
         }
     }
-    if(_com & END_CALL)
+    if(_com & STOP_PHONE)
     {
         if(isAnswered & !isIncommingCall)
         {
@@ -182,9 +188,9 @@ void MainWindow::incommingCallStart()
 
     isIncommingCall = true;
     callMusicStart();
-    sendCommand(INCOMMING_CALL);
+    sendCommand(START_CALL);
     callTimer.start(ui->lineEditCallTimer->text().toInt());
-    checkTCPTimer.start(1000);
+//    checkTCPTimer.start(1000);
 }
 
 void MainWindow::incommingCallStop()
@@ -192,22 +198,24 @@ void MainWindow::incommingCallStop()
     toLog("Incomming call stop");
     if(isIncommingCall && !isAnswered)
     {
-        checkTCPTimer.stop();
+//        checkTCPTimer.stop();
         callTimer.stop();
-        callMusicStop();
+//        callMusicStop();
+        emit callMusicStopSignal();
         isCalling = false;
 
-        sendCommand(END_CALL);
+        sendCommand(STOP_CALL);
         isIncommingCall = false;
     }
 }
 
 void MainWindow::answer()
 {
-    checkTCPTimer.stop();
+//    checkTCPTimer.stop();
     callTimer.stop();
     toLog("Answer call");
-    callMusicStop();
+//    callMusicStop();
+    emit callMusicStopSignal();
 
     isAnswered = true;
     ui->pushButtonTalk->setChecked(true);
@@ -227,40 +235,44 @@ void MainWindow::stopCall()
 
 void MainWindow::door1()
 {
-    toLog("Open door 1");
-    if(digitalRead(out1Pin) == HIGH)
+    if(digitalRead(out1Pin) != HIGH)
     {
-        digitalWrite(out1Pin, LOW);
-        return;
+        toLog("Open the door 1");
+        digitalWrite(out1Pin, HIGH);
+        QTimer::singleShot(3000, this, &MainWindow::door1isClosed);
     }
-    digitalWrite(out1Pin, HIGH);
-    QTimer::singleShot(3000, this, &MainWindow::door1isClosed);
+    else
+    {
+        toLog("Door 1 is already opened");
+    }
 }
 
 void MainWindow::door2()
 {
-    toLog("Open door 2");
-    if(digitalRead(out2Pin) == HIGH)
+    if(digitalRead(out2Pin) != HIGH)
     {
-        digitalWrite(out2Pin, LOW);
-        return;
+        toLog("Open the door 2");
+        digitalWrite(out2Pin, HIGH);
+        QTimer::singleShot(3000, this, &MainWindow::door2isClosed);
     }
-    digitalWrite(out2Pin, HIGH);
-    QTimer::singleShot(3000, this, &MainWindow::door2isClosed);
+    else
+    {
+        toLog("Door 2 is already opened");
+    }
 }
 
 void MainWindow::door1isClosed()
 {
     toLog("Door 1 is closed");
     sendCommand(DOOR_1_IS_CLOSED);
-    door1();
+    digitalWrite(out1Pin, LOW);
 }
 
 void MainWindow::door2isClosed()
 {
     toLog("Door 2 is closed");
     sendCommand(DOOR_2_IS_CLOSED);
-    door2();
+    digitalWrite(out2Pin, LOW);
 }
 
 void MainWindow::initCallPlayer()
@@ -268,7 +280,13 @@ void MainWindow::initCallPlayer()
     connect(this, &MainWindow::callMusicStopSignal, &callPlayer, &CallPlayer::stop, Qt::DirectConnection);
     connect(this, &MainWindow::callMusicStartSignal, &callPlayer, &CallPlayer::start);
     connect(&callTimer, &QTimer::timeout, this, &MainWindow::incommingCallTimerShot);
-    callPlayer.run();
+
+    connect(&callPlayerThread, &QThread::started, &callPlayer, &CallPlayer::run);
+    connect(this, &MainWindow::setRingtoneIdx, &callPlayer, &CallPlayer::setTrackIndex);
+
+    callPlayer.moveToThread(&callPlayerThread);
+    callPlayerThread.start();
+//    callPlayer.run();
 
     showCallsPlaylist();
 }
@@ -277,17 +295,19 @@ void MainWindow::showCallsPlaylist()
 {
     toLog("Show call play list");
     ui->listWidgetSounds->clear();
-    for(int i = 0; i < callPlayer.getPlaylistSize(); i++)
-    {
-        QString itemText = "Sound: " + QString::number(i + 1);
-        ui->listWidgetSounds->addItem(itemText);
-    }
+//    for(int i = 0; i < callPlayer.getPlaylistSize(); i++)
+//    {
+//        QString itemText = "Sound: " + QString::number(i + 1);
+//        ui->listWidgetSounds->addItem(itemText);
+//    }
 }
 
 void MainWindow::callMusicStart()
 {
     toLog("CAll music start");
-    callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
+//    callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
+
+    emit setRingtoneIdx(ui->listWidgetSounds->currentRow());
     emit callMusicStartSignal(true);
 }
 
@@ -384,7 +404,8 @@ void MainWindow::on_pushButtonCall_clicked()
 
 void MainWindow::on_listWidgetSounds_itemSelectionChanged()
 {
-    callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
+//    callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
+    emit setRingtoneIdx(ui->listWidgetSounds->currentRow());
     emit callMusicStartSignal(false);
 }
 
