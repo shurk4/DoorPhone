@@ -128,8 +128,14 @@ void MainWindow::initGPIO()
     toLog("Initializin GPIO");
     wiringPiSetup();
 
+    // doors
     pinMode(out1Pin, OUTPUT);
     pinMode(out2Pin, OUTPUT);
+    digitalWrite(out1Pin, LOW);
+    digitalWrite(out2Pin, LOW);
+    // sound amplifier
+    pinMode(amplifierPin, OUTPUT);
+    digitalWrite(amplifierPin, HIGH);
 
     buttonsPins.push_back(buttonCallPin);
     buttons.setPins(buttonsPins);
@@ -186,6 +192,7 @@ void MainWindow::incommingCallStart()
     toLog("Incomming call start");
     if(isIncommingCall || isAnswered) return;
 
+    digitalWrite(amplifierPin, LOW);
     isIncommingCall = true;
     callMusicStart();
     sendCommand(START_CALL);
@@ -200,6 +207,7 @@ void MainWindow::incommingCallStop()
     {
 //        checkTCPTimer.stop();
         callTimer.stop();
+        digitalWrite(amplifierPin, HIGH);
 //        callMusicStop();
         emit callMusicStopSignal();
         isCalling = false;
@@ -229,6 +237,7 @@ void MainWindow::stopCall()
     toLog("Calling end");
 
     phone.stop();
+    digitalWrite(amplifierPin, HIGH);
 
     isIncommingCall = false;
 }
@@ -384,12 +393,7 @@ void MainWindow::noClientsConnected()
 
 void MainWindow::on_pushButton1_clicked()
 {
-    if(digitalRead(out1Pin) == HIGH)
-    {
-        digitalWrite(out1Pin, LOW);
-        return;
-    }
-    digitalWrite(out1Pin, HIGH);
+    door1();
 }
 
 void MainWindow::on_pushButton2_clicked()

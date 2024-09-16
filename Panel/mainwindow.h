@@ -44,6 +44,7 @@ class MainWindow : public QMainWindow
     int buttonCallPin = 11;
     int out1Pin = 12;
     int out2Pin = 14;
+    int amplifierPin = 9;
 
 public:
     MainWindow(QWidget *parent = nullptr);
