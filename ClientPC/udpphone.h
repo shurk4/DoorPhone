@@ -23,6 +23,7 @@ class UDPPhone : public QObject
 
     // UDP
     QUdpSocket *udpSocket;
+    QHostAddress serverIp = QHostAddress::Broadcast;
     uint port = 2024;
     int selectedInterface = 0; // Не реализовано
 
@@ -40,7 +41,7 @@ class UDPPhone : public QObject
 
 public:
     explicit UDPPhone(QObject *parent = nullptr);
-    UDPPhone(uint _port, QObject *parent = nullptr);
+    UDPPhone(const QString _ip, const uint _port, QObject *parent = nullptr);
 
     void start();
     void stop();
@@ -48,6 +49,7 @@ public:
     bool isStarted();
 
     // UDP
+    void setServerIp(const QString &_ip);
     void setPort(uint _port);
     void setInterfaceByIndex(int _index); // Не реализована
 

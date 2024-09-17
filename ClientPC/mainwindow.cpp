@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->pushButtonAnswer->setDisabled(true);
     ui->pushButtonMute->setDisabled(true);
+    ui->pushButtonDoor1->setDisabled(true);
+    ui->pushButtonDoor2->setDisabled(true);
 
     createTrayIcon();
     preparePopUp();
@@ -101,47 +103,61 @@ void MainWindow::startTCP()
     }
 }
 
-void MainWindow::callAnswer()
+void MainWindow::usePhone()
 {
     toLog("Call answer");
-    if(ui->pushButtonAnswer->isChecked())
+    ui->pushButtonAnswer->setChecked(false);
+
+    if(!isPhoneOn)
     {
-        isAnswered = true;
-        toLog("Start talk");
-        phone->start();
-        sendCommand(START_PHONE);
-        ui->pushButtonMute->setEnabled(true);
+        startPhone();
+        return;
     }
-    else
+
+    stopPhone();
+}
+
+void MainWindow::startPhone()
+{
+    toLog("Start phone");
+    phone->start();
+    sendCommand(START_PHONE);
+}
+
+void MainWindow::stopPhone()
+{
+    toLog("Stop talk");
+    phone->stop();
+    sendCommand(STOP_PHONE);
+    isPhoneOn = false;
+    if(pop->isVisible())
     {
-        toLog("Stop talk");
-        phone->stop();
-        if(isAnswered)
-        {
-            sendCommand(STOP_PHONE);
-            isAnswered = false;
-        }
-        ui->pushButtonAnswer->setChecked(false);
-        ui->pushButtonAnswer->setDisabled(true);
-        ui->pushButtonMute->setDisabled(true);
-        showHidePopUp();
+        hidePopUp();
     }
 }
 
 void MainWindow::applyCommand(int _com)
 {
-    toLog("Apply command: " + QString::number(_com));
+    toLog("Apply command: ");
     if(_com & START_CALL)
     {
-            showHidePopUp();
-        ui->pushButtonAnswer->setEnabled(true);
+        toLog("START_CALL");
+        showPopUp();
+        isCalling = true;
     }
-    if(_com & STOP_CALL || _com & START_PHONE)
+    if(_com & STOP_CALL)
     {
-        if(!ui->pushButtonAnswer->isChecked())
+        toLog("STOP_CALL");
+        isCalling = false;
+        if(!isPhoneOn)
         {
-            endCall();
+            hidePopUp();
         }
+    }
+    if(_com & START_PHONE)
+    {
+        isPhoneOn = true;
+        ui->pushButtonAnswer->setChecked(true);
     }
     if(_com & DISCONNECT)
     {
@@ -179,14 +195,13 @@ void MainWindow::sendCommand(int _com)
 void MainWindow::endCall()
 {
     toLog("End call");
-    ui->pushButtonAnswer->setChecked(false);
-    ui->pushButtonAnswer->setDisabled(true);
-    callAnswer();
+    isCalling = false;
+    usePhone();
 }
 
 void MainWindow::preparePhone()
 {
-    phone = new UDPPhone(portUDP);
+    phone = new UDPPhone(ipAdr, portUDP);
     phoneThread = new QThread();
     connect(phoneThread, &QThread::started, phone, &UDPPhone::initAudio);
     connect(phone, &UDPPhone::signalLog, this, &MainWindow::toLog);
@@ -204,17 +219,20 @@ void MainWindow::socketReady()
         toLog("Is command");
         applyCommand(data.midRef(1, data.size() - 1).toInt());
     }
-
 }
 
 void MainWindow::socketConnected()
 {
     toLog("TCP connected");
     connected = true;
+    ui->pushButtonAnswer->setEnabled(true);
+    ui->pushButtonDoor1->setEnabled(true);
+    ui->pushButtonDoor2->setEnabled(true);
 }
 
 void MainWindow::socketDisconected()
 {
+    ui->pushButtonAnswer->setDisabled(true);
     toLog("Socket disconnected");
     connected = false;
     disconnect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
@@ -271,12 +289,12 @@ void MainWindow::popCallClicked()
         if(ui->pushButtonAnswer->isChecked())
         {
             ui->pushButtonAnswer->setChecked(false);
-            callAnswer();
+            usePhone();
         }
         else
         {
             ui->pushButtonAnswer->setChecked(true);
-            callAnswer();
+            usePhone();
         }
     }
 }
@@ -379,6 +397,28 @@ void MainWindow::showHidePopUp()
     }
 }
 
+void MainWindow::showPopUp()
+{
+    toLog("Show PopUp");
+    if(pop->isVisible())
+    {
+        toLog("PopUp is already shown");
+        return;
+    }
+    pop->show();
+}
+
+void MainWindow::hidePopUp()
+{
+    toLog("Hide PopUp");
+    if(pop->isVisible())
+    {
+        pop->hideAnimation();
+        return;
+    }
+    toLog("PopUp is already hidden");
+}
+
 void MainWindow::applySettings()
 {
     toLog("Settings window is closed");
@@ -395,7 +435,7 @@ void MainWindow::on_pushButtonSettings_clicked()
 
 void MainWindow::on_pushButtonAnswer_clicked()
 {
-    callAnswer();
+    usePhone();
 }
 
 void MainWindow::on_pushButtonMute_clicked()

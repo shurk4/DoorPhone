@@ -113,3 +113,12 @@ void MainWindow::stopAudio()
     audioInput->stop();
     audioOutput->stop();
 }
+
+
+if(_com & STOP_CALL || _com & START_PHONE)
+{
+    if(!ui->pushButtonAnswer->isChecked())
+    {
+        endCall();
+    }
+}

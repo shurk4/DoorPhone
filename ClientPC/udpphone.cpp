@@ -3,21 +3,29 @@
 UDPPhone::UDPPhone(QObject *parent)
     : QObject{parent}
 {
-    toLog("UDP Phone created with default port");
+    qDebug() << "UDP Phone created with default port";
 }
 
-UDPPhone::UDPPhone(uint _port, QObject *parent) : port(_port)
+UDPPhone::UDPPhone(const QString _ip, const uint _port, QObject *parent) : port(_port)
 {
-    toLog("UDP Phone created with port: " + QString::number(port));
+    if(!QHostAddress(_ip).isNull())
+    {
+        serverIp = QHostAddress(_ip);
+        qDebug() << "UDP Server addres: " << serverIp.toString();
+    }
+    qDebug() << "UDP Phone created with port: " << port;
 }
 
 void UDPPhone::start()
 {
-    toLog("Starting");
-    startAudio();
-    startUdp();
-    started = true;
-    toLog("OK");
+    if(!started)
+    {
+        toLog("Starting");
+        startAudio();
+        startUdp();
+        started = true;
+        toLog("OK");
+    }
 }
 
 void UDPPhone::stop()
@@ -35,6 +43,11 @@ void UDPPhone::stop()
 bool UDPPhone::isStarted()
 {
     return started;
+}
+
+void UDPPhone::setServerIp(const QString &_ip)
+{
+    serverIp = QHostAddress(_ip);
 }
 
 void UDPPhone::toLog(QString _log)
