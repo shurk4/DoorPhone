@@ -76,8 +76,10 @@ void MainWindow::startTCP()
     toLog("");
     toLog("Starting TCP network");
     toLog(" TCP Server");
+//    tcpServer.setPort(ui->lineEditPortTcp->text().toInt());
     connect(this, &MainWindow::tcpSetPort, &tcpServer, &Server::setPort);
     connect(this, &MainWindow::tcpSend, &tcpServer, &Server::sendCommand);
+//    connect(&checkTCPTimer, &QTimer::timeout, &tcpServer, &Server::checkSocketsData);
     connect(&tcpServer, &Server::signalData, this, &MainWindow::reciveData, Qt::DirectConnection);
     connect(&tcpServer, &Server::signalLog, this, &MainWindow::toLog);
     connect(&tcpServer, &Server::clientsListChanged, this, &MainWindow::clientsListChanged);
@@ -85,6 +87,8 @@ void MainWindow::startTCP()
 
     connect(&tcpServerThread, &QThread::started, &tcpServer, &Server::run);
     emit tcpSetPort(ui->lineEditPortTcp->text().toInt());
+//    tcpServer.moveToThread(&tcpServerThread);
+//    tcpServerThread.start();
 
     tcpServer.run();
     toLog(" OK");
@@ -118,30 +122,6 @@ void MainWindow::preparePhone()
     phone.initAudio();
 }
 
-void MainWindow::amplifierOn()
-{
-    toLog("Amplifier On");
-    digitalWrite(amplifierPin, LOW);
-}
-
-void MainWindow::amplifierOff()
-{
-    toLog("Amplifier Off");
-    digitalWrite(amplifierPin, HIGH);
-}
-
-void MainWindow::startPhone()
-{
-    toLog("Starting phone");
-    emit callMusicStopSignal();
-
-    isPhoneOn = true;
-    ui->pushButtonTalk->setChecked(true);
-    phone.start();
-    sendCommand(START_PHONE);
-    toLog("Phone is started");
-}
-
 void MainWindow::initGPIO()
 {
     toLog("");
@@ -155,7 +135,7 @@ void MainWindow::initGPIO()
     digitalWrite(out2Pin, LOW);
     // sound amplifier
     pinMode(amplifierPin, OUTPUT);
-    amplifierOff();
+    digitalWrite(amplifierPin, HIGH);
 
     buttonsPins.push_back(buttonCallPin);
     buttons.setPins(buttonsPins);
@@ -175,25 +155,19 @@ void MainWindow::applyCommand(int _com)
     toLog("Apply command: " + QString::number(_com));
     if(_com & START_PHONE)
     {
-        toLog("START_PHONE");
-        toLog("Is calling = " + QString::number(isCalling));
-        if(isCalling)
+        if(isIncommingCall & !isAnswered)
         {
-            callMusicStop();
-        }
-
-        if(!isPhoneOn)
-        {
-            startPhone();
-            isPhoneOn = true;
+            isAnswered = true;
+            isIncommingCall = false;
+            answer();
+            sendCommand(START_PHONE);
         }
     }
     if(_com & STOP_PHONE)
     {
-        toLog("STOP_PHONE");
-        if(isPhoneOn)
+        if(isAnswered & !isIncommingCall)
         {
-            isPhoneOn = false;
+            isAnswered = false;
             stopCall();
         }
     }
@@ -216,26 +190,45 @@ void MainWindow::sendCommand(int _com)
 void MainWindow::incommingCallStart()
 {
     toLog("Incomming call start");
-    if(isCalling) return;
+    if(isIncommingCall || isAnswered) return;
 
-    amplifierOn();
+    digitalWrite(amplifierPin, LOW);
     isIncommingCall = true;
     callMusicStart();
     sendCommand(START_CALL);
     callTimer.start(ui->lineEditCallTimer->text().toInt());
+//    checkTCPTimer.start(1000);
 }
 
 void MainWindow::incommingCallStop()
 {
     toLog("Incomming call stop");
-    if(isIncommingCall && !isPhoneOn)
+    if(isIncommingCall && !isAnswered)
     {
+//        checkTCPTimer.stop();
         callTimer.stop();
-        amplifierOff();
+        digitalWrite(amplifierPin, HIGH);
+//        callMusicStop();
         emit callMusicStopSignal();
         isCalling = false;
+
         sendCommand(STOP_CALL);
+        isIncommingCall = false;
     }
+}
+
+void MainWindow::answer()
+{
+//    checkTCPTimer.stop();
+    callTimer.stop();
+    toLog("Answer call");
+//    callMusicStop();
+    emit callMusicStopSignal();
+
+    isAnswered = true;
+    ui->pushButtonTalk->setChecked(true);
+    phone.start();
+    toLog("Calling answered");
 }
 
 void MainWindow::stopCall()
@@ -244,7 +237,7 @@ void MainWindow::stopCall()
     toLog("Calling end");
 
     phone.stop();
-    amplifierOff();
+    digitalWrite(amplifierPin, HIGH);
 
     isIncommingCall = false;
 }
@@ -302,6 +295,7 @@ void MainWindow::initCallPlayer()
 
     callPlayer.moveToThread(&callPlayerThread);
     callPlayerThread.start();
+//    callPlayer.run();
 
     showCallsPlaylist();
 }
@@ -320,7 +314,7 @@ void MainWindow::showCallsPlaylist()
 void MainWindow::callMusicStart()
 {
     toLog("CAll music start");
-    isCalling = true;
+//    callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
 
     emit setRingtoneIdx(ui->listWidgetSounds->currentRow());
     emit callMusicStartSignal(true);
@@ -329,8 +323,6 @@ void MainWindow::callMusicStart()
 void MainWindow::callMusicStop()
 {
     toLog("Call music stop");
-    callTimer.stop();
-    isCalling = false;
     emit callMusicStopSignal();
 }
 
@@ -355,11 +347,13 @@ void MainWindow::reciveData(QString _data)
 
 void MainWindow::on_pushButtonSend_clicked()
 {
+//    tcpServer.lanSendText(ui->lineEditMessage->text());
     ui->lineEditMessage->clear();
 }
 
 void MainWindow::btnStateChanged(int _pin, int _state)
 {
+//    ui->pushButtonCall->setChecked(_state);
     incommingCallStart();
 }
 
@@ -414,6 +408,8 @@ void MainWindow::on_pushButtonCall_clicked()
 
 void MainWindow::on_listWidgetSounds_itemSelectionChanged()
 {
+//    callPlayer.setTrackIndex(ui->listWidgetSounds->currentRow());
     emit setRingtoneIdx(ui->listWidgetSounds->currentRow());
     emit callMusicStartSignal(false);
 }
+

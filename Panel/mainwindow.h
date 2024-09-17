@@ -97,10 +97,6 @@ private:
     Server tcpServer;
     QThread tcpServerThread;
     void startTCP();
-//    QTimer checkTCPTimer;
-
-    bool isCalling = false;
-
 
     void listInterfaces();
     void listLocalAdresses();
@@ -109,6 +105,10 @@ private:
     UDPPhone phone;
 
     void preparePhone();
+    void amplifierOn();
+    void amplifierOff();
+    void startPhone();
+    void stopPhone();
 
     // MP3
     QTimer callTimer;
@@ -129,13 +129,13 @@ private:
     void initGPIO();
 
     // Control
+    bool isCalling = false;
     bool isIncommingCall = false;
-    bool isAnswered = false;
+    bool isPhoneOn = false;
     void applyCommand(int _com);
     void sendCommand(int _com);
     void incommingCallStart();
     void incommingCallStop();
-    void answer();
     void stopCall();
     void door1();
     void door2();
